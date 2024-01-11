@@ -36,14 +36,46 @@ if INI_WINDOW_WIDTH == -1{
 	
 PT_IS_FULLSCREEN:=false
 PT_MAIN_HWND:=0
-
+ProjectCaption:=""
+ProjectWindowID:={}
+activeControl:=0
 ControlTimer(){
+	global TextID
+	global ProjectCaption
+	global ProjectWindowID
+	global activeControl
+
 	if PT_MAIN_HWND = 0
 		return
-	pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
-    pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")    
+	pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")		
+    pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")  
 	ToggleControl(pt_mix_hWnd)
     ToggleControl(pt_edit_hWnd)
+	text:=""
+	try{
+	; no way yet to find which one is visible... use just project name
+	text:= LTrim(ControlGetText(pt_edit_hWnd),"Edit: ")
+	}
+	catch{
+		text:=""		
+	}
+	try{
+		if WinActive( "ahk_exe ProTools.exe") && PT_IS_FULLSCREEN{
+			ControlSetText(text, TextID)
+			if ControlGetVisible(ProjectWindowID)=0{
+			ProjectWindowID.Show			
+			WinActivate PT_MAIN_HWND
+			}
+		}
+		else{
+			if ControlGetVisible(ProjectWindowID)!=0
+				ProjectWindowID.Hide
+		}			
+	}
+	catch 
+	{ }
+	
+	
 }
 
 TogglePTFullScreen(){
@@ -88,6 +120,8 @@ ToggleMainWindow(hWnd){
         WinRestore hWnd
 		PT_IS_FULLSCREEN:=false
     }
+	
+	DisplayProjectName (PT_IS_FULLSCREEN)
 }
 
 ToggleControl(hWnd){
@@ -127,10 +161,34 @@ IsWindowStyled(hWnd){
 }
 
 GetMDIWindow(hWnd, ID)
-{
-    try           
-		return ControlGetHwnd(ID,hWnd)    
+{	
+    try{		
+		return ControlGetHwnd(ID,hWnd)
+	}
     catch 		
 		return false   
 }
 
+DisplayProjectName(show:=false){
+	global PT_MONITOR
+	global TextID
+	global ProjectWindowID
+	if show{
+		MonitorGetWorkArea(PT_MONITOR, &Left, &Top, &Right, &Bottom)
+		ProjectWindowID := Gui()
+		ProjectWindowID.BackColor:="333333"
+		ProjectWindowID.SetFont("s10 c38D177 w100")
+		;ID.Add("Text",, Left " " Top " " Right " " Bottom )        
+		
+		textStart:=Right - 100
+		boxWidth:=1350		
+		TextID:= ProjectWindowID.AddText("x0 y2 w1200 h20 Center")
+		
+		ProjectWindowID.Show( "X" Right - boxWidth " Y" Top " w" boxWidth " h-19 NoActivate" )
+		ProjectWindowID.Opt("+AlwaysOnTop -Caption +ToolWindow")	
+	} else
+		try {
+		ProjectWindowID.Hide
+		} catch
+			{}
+}
