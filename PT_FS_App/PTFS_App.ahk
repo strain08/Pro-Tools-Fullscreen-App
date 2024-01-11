@@ -9,7 +9,8 @@ Version: 1.0.0b
 
 ; >>>>> Configure
 
-; shortcut
+; Toggle fullscreen shortcut
+; Default: PrintScreen
 PrintScreen:: TogglePTFullScreen()
 
 ; Monitor to make Pro Tools full screen on.
@@ -20,6 +21,10 @@ PT_MONITOR:= MonitorGetPrimary()
 ; True: Read the window width from INI file.
 ; False (default): Use PT_MONITOR width. 
 CUSTOM_WIDTH:= false
+
+; Show project name when window in focus
+; Default: true
+SHOW_PROJECT_NAME:= true
 
 ; Configure <<<<<<
 
@@ -42,8 +47,8 @@ activeControl:=0
 ControlTimer(){
 	global TextID
 	global ProjectCaption
-	global ProjectWindowID
-	global activeControl
+	global ProjectWindowID	
+	global SHOW_PROJECT_NAME
 
 	if PT_MAIN_HWND = 0
 		return
@@ -60,7 +65,7 @@ ControlTimer(){
 		text:=""		
 	}
 	try{
-		if WinActive( "ahk_exe ProTools.exe") && PT_IS_FULLSCREEN{
+		if WinActive( "ahk_exe ProTools.exe") && PT_IS_FULLSCREEN && SHOW_PROJECT_NAME {
 			ControlSetText(text, TextID)
 			if ControlGetVisible(ProjectWindowID)=0{
 			ProjectWindowID.Show			
