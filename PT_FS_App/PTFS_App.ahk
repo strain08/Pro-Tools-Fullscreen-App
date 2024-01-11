@@ -36,14 +36,14 @@ INI_WINDOW_WIDTH:= IniRead(INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH, -1)
 if INI_WINDOW_WIDTH == -1{
 	MonitorGetWorkArea(MonitorGetPrimary(), &Left, &Top, &Right, &Bottom)
 	IniWrite(INI_WINDOW_WIDTH:= Right - Left, INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH)
-}else
-	CUSTOM_WIDTH:=true
+}
 	
 PT_IS_FULLSCREEN:=false
 PT_MAIN_HWND:=0
 ProjectCaption:=""
 ProjectWindowID:={}
 activeControl:=0
+
 ControlTimer(){
 	global TextID
 	global ProjectCaption
