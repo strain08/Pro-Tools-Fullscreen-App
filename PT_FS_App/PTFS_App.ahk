@@ -24,7 +24,7 @@ CUSTOM_WIDTH:= false
 
 ; Show project name when window in focus
 ; Default: true
-SHOW_PROJECT_NAME:= true
+SHOW_PROJECT_NAME:= false
 
 ; Configure <<<<<<
 
@@ -58,8 +58,8 @@ ControlTimer(){
     ToggleControl(pt_edit_hWnd)
 	text:=""
 	try{
-	; no way yet to find which one is visible... use just project name
-	text:= LTrim(ControlGetText(pt_edit_hWnd),"Edit: ")
+		; no way yet to find which one is visible... use just project name
+		text:= LTrim(ControlGetText(pt_edit_hWnd),"Edit: ")
 	}
 	catch{
 		text:=""		
@@ -73,7 +73,7 @@ ControlTimer(){
 			}
 		}
 		else{
-			if ControlGetVisible(ProjectWindowID)!=0
+			if ControlGetVisible(ProjectWindowID)!=0 && !SHOW_PROJECT_NAME
 				ProjectWindowID.Hide
 		}			
 	}
@@ -107,6 +107,7 @@ ToggleMainWindow(hWnd){
 	global PT_MONITOR
 	global CUSTOM_WIDTH
 	global INI_WINDOW_WIDTH
+	global SHOW_PROJECT_NAME
 
 	if !WinExist(hWnd)
         return false	
@@ -126,7 +127,8 @@ ToggleMainWindow(hWnd){
 		PT_IS_FULLSCREEN:=false
     }
 	
-	DisplayProjectName (PT_IS_FULLSCREEN)
+	if SHOW_PROJECT_NAME 
+		DisplayProjectName (PT_IS_FULLSCREEN)
 }
 
 ToggleControl(hWnd){
