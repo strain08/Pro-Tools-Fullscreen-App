@@ -3,15 +3,45 @@
 /*
 -------------------------------------
 PT_FS_App - Make Pro Tools borderless
-Version: 1.0.0b
+Version: 1.1.0b
+TODO:
+	- fix project name window
+	- disable middle-click action when menu open
+	- check if pt is fullscreen before hide menu (?)
+History
+1.1.0b
+	- toggle menu in order to fix region move offset
+1.0.0b
+	- initial release
 -------------------------------------
 */
 
 ; >>>>> Configure
 
 ; Toggle fullscreen shortcut
-; Default: PrintScreen
-PrintScreen:: TogglePTFullScreen()
+^F12:: TogglePTFullScreen()
+MButton:: ToggleMenu()
+
+ToggleMenu()
+{
+	global menuPtr
+	if menuPtr = 0 {
+		; hide menu
+		menuPtr := DllCall("GetMenu", "Ptr", PT_MAIN_HWND)
+		DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", 0)
+		pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
+		WinGetPos(,,,&Height,pt_edit_hWnd)
+		WinMove(,,,Height + 20,pt_edit_hWnd)
+	} 
+	else {
+		; show menu
+		DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", menuPtr)
+		pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
+		WinGetPos(, &YPos,, &Height, pt_edit_hWnd)
+		WinMove(, YPos-20,, Height - 20, pt_edit_hWnd)
+		menuPtr := 0
+	}
+}
 
 ; Monitor to make Pro Tools full screen on.
 ; Default: MonitorGetPrimary()
@@ -21,7 +51,7 @@ PT_MONITOR:= MonitorGetPrimary()
 ; True: Read the window width from INI file.
 ; False (default): Use PT_MONITOR width. 
 CUSTOM_WIDTH:= false
-
+menuPtr:=0
 ; Show project name when window in focus
 ; Default: true
 SHOW_PROJECT_NAME:= false
@@ -52,8 +82,8 @@ ControlTimer(){
 
 	if PT_MAIN_HWND = 0
 		return
-	pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")		
-    pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")  
+	pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
+    pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")
 	ToggleControl(pt_mix_hWnd)
     ToggleControl(pt_edit_hWnd)
 	text:=""
@@ -64,7 +94,7 @@ ControlTimer(){
 	catch{
 		text:=""		
 	}
-	try{
+	try {
 		if WinActive( "ahk_exe ProTools.exe") && PT_IS_FULLSCREEN && SHOW_PROJECT_NAME {
 			ControlSetText(text, TextID)
 			if ControlGetVisible(ProjectWindowID)=0{
@@ -90,7 +120,8 @@ TogglePTFullScreen(){
 	if PT_MAIN_HWND == 0    
         return 0   
     
-	ToggleMainWindow(PT_MAIN_HWND)  
+	ToggleMainWindow(PT_MAIN_HWND)	
+
 	if PT_IS_FULLSCREEN
 		SetTimer ControlTimer, 1000
 	else
@@ -123,7 +154,7 @@ ToggleMainWindow(hWnd){
     }
     else{
         ToggleStyles hWnd
-        WinRestore hWnd
+       WinRestore hWnd
 		PT_IS_FULLSCREEN:=false
     }
 	
@@ -160,7 +191,7 @@ ToggleStyles(hWnd){
 IsWindowStyled(hWnd){
 	if !WinExist(hWnd)	
         return false
-	   
+	
 	if WinGetStyle(hWnd) & 0x40000
 			return false
 		else    
