@@ -6,10 +6,13 @@
 /*
 -------------------------------------
 PT_FS_App - Make Pro Tools borderless
-Version: 1.1.0b
+Version: 0.9.0b
 TODO:
 	- fix project name window
+	- menu toggle on mouse hoover
 History
+0.9.0b
+	- changed version number :) since it is not feature complete, still missing project name window
 1.1.1b
 	- disable menu toggle when menu open
 	- do not hide menu if pt is not fullscreen
