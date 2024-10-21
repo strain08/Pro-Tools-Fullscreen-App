@@ -66,7 +66,11 @@ if PT_MAIN_HWND:=WinExist("ahk_class DigiAppWndClass") {
 		MENU_PTR:=IniRead(INI_FILE, "Instance", "MENU_PTR")
 	}
 }
+; if window has a visible menu, do not try to show it
+if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
+	MENU_PTR := 0
 
+; show or hide Pro Tools menu
 ToggleMenu() {
 	global MENU_PTR
 	global SHOW_PROJECT_NAME
@@ -81,29 +85,23 @@ ToggleMenu() {
 
 	if MENU_PTR = 0 {
 		; hide menu
-		MENU_PTR := DllCall("GetMenu", "Ptr", PT_MAIN_HWND)
+		MENU_PTR := DllCall("GetMenu", "Ptr", PT_MAIN_HWND) ; store menu pointer
 		DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", 0)
 		; hide project name window
 		if SHOW_PROJECT_NAME
 			DisplayProjectName false
-		; adjust edit and mix window bottom
+		; adjust edit and mix window bottom, they will be off by 20 pixels when menu is hidden
 		pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
 		pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")
 		WinGetPos(,,,&Height, pt_edit_hWnd)
 		WinMove(,,,Height+20, pt_edit_hWnd)
 		WinGetPos(,,,&Height, pt_mix_hWnd)
 		WinMove(,,,Height+20, pt_mix_hWnd)
-		; save instance data, to restore in case we close the script when menu is hidden
+		; save instance data, in case we close the script when menu is hidden
 		IniWrite(PT_MAIN_HWND, INI_FILE, "Instance", "PT_MAIN_HWND")
 		IniWrite(MENU_PTR, INI_FILE, "Instance", "MENU_PTR")
 	}
 	else {
-		; if window has a menu do not try to show it
-		if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
-		{
-			MENU_PTR := 0
-			return
-		}
 		; show menu
 		DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", MENU_PTR)
 		; show project name window
@@ -121,6 +119,8 @@ ToggleMenu() {
 	}
 }
 
+; updates the project name
+; updates the edit/mix window styles when project opened
 ProjectNameTimer(){
 	global TextID
 	global ProjectCaption
@@ -217,6 +217,7 @@ ToggleMainWindow(hWnd) {
 		DisplayProjectName(PT_IS_FULLSCREEN)
 }
 
+; style the control to match main window style
 ToggleControl(hWnd) {
 	global PT_IS_FULLSCREEN
 
