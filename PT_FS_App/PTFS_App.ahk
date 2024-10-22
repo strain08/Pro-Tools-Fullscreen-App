@@ -6,11 +6,13 @@
 /*
 -------------------------------------
 PT_FS_App - Make Pro Tools borderless
-Version: 0.9.0b
+Version: 0.9.1b
 TODO:
 	- fix project name window
 	- menu toggle on mouse hoover
 History
+0.9.1b
+	- if pt is restarted controls no longer switch to fullscreen
 0.9.0b
 	- changed version number :) since it is not feature complete, still missing project name window
 1.1.1b
@@ -223,11 +225,12 @@ ToggleMainWindow(hWnd) {
 ; style the control to match main window style
 ToggleControl(hWnd) {
 	global PT_IS_FULLSCREEN
+	global PT_MAIN_HWND
 
     if !WinExist(hWnd)
         return false
 
-	if PT_IS_FULLSCREEN {
+	if IsWindowStyled(PT_MAIN_HWND) {
 		if !IsWindowStyled(hWnd) {
 			WinMove 0,0,,,hWnd
 			ToggleStyles hWnd
