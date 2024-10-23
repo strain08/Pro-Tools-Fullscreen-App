@@ -59,16 +59,15 @@ if INI_WINDOW_WIDTH == -1{
 
 ProjectCaption:=""
 ProjectWindowID:={}
-PT_IS_FULLSCREEN:=false
 
 ; check if instance matches the saved one
 ; if true, restore menu pointer from INI
 MENU_PTR:=0
 PT_MAIN_HWND:=0
 if PT_MAIN_HWND:=WinExist("ahk_class DigiAppWndClass") {
-	t:=IniRead(INI_FILE, "Instance", "PT_MAIN_HWND")
+	t:=IniRead(INI_FILE, "Instance", "PT_MAIN_HWND", "0")
 	if t=PT_MAIN_HWND { ; if instance matches, load menu pointer from INI
-		MENU_PTR:=IniRead(INI_FILE, "Instance", "MENU_PTR")
+		MENU_PTR:=IniRead(INI_FILE, "Instance", "MENU_PTR", "0")
 	}
 }
 ; if window has a visible menu, do not try to show it
@@ -131,7 +130,6 @@ ProjectNameTimer(){
 	global ProjectCaption
 	global ProjectWindowID
 	global SHOW_PROJECT_NAME
-	global PT_IS_FULLSCREEN
 	global PT_MAIN_HWND
 	global MENU_PTR
 
@@ -153,7 +151,7 @@ ProjectNameTimer(){
 		text:=""
 	}
 	try {
-		if PT_MAIN_HWND:=WinActive( "ahk_class DigiAppWndClass") && PT_IS_FULLSCREEN && SHOW_PROJECT_NAME {
+		if PT_MAIN_HWND:=WinActive( "ahk_class DigiAppWndClass") && IsWindowStyled(PT_MAIN_HWND) && SHOW_PROJECT_NAME {
 			ControlSetText(text, TextID)
 			if ControlGetVisible(ProjectWindowID)=0 {
 				ProjectWindowID.Show
@@ -171,7 +169,6 @@ ProjectNameTimer(){
 }
 
 TogglePTFullScreen(){
-	global PT_IS_FULLSCREEN
 	global SHOW_PROJECT_NAME
 
     PT_MAIN_HWND:= WinExist("ahk_class DigiAppWndClass")
@@ -180,7 +177,7 @@ TogglePTFullScreen(){
 
 	ToggleMainWindow(PT_MAIN_HWND)
 
-	if PT_IS_FULLSCREEN
+	if IsWindowStyled(PT_MAIN_HWND)
 		SetTimer ProjectNameTimer, 250
 	else
 		SetTimer ProjectNameTimer, -250 ; negative means run once in specified interval
@@ -196,7 +193,6 @@ ToggleMainWindow(hWnd) {
 	global CUSTOM_WIDTH
 	global INI_WINDOW_WIDTH
 	global SHOW_PROJECT_NAME
-	global PT_IS_FULLSCREEN
 
 	if !WinExist(hWnd)
         return false
@@ -208,23 +204,20 @@ ToggleMainWindow(hWnd) {
 			WinMove Left, Top, INI_WINDOW_WIDTH, Bottom - Top, hWnd
 		else
 			WinMove Left, Top, Right - Left, Bottom - Top, hWnd
-		PT_IS_FULLSCREEN:=true
     }
 	else
 	{
         ToggleStyles(hWnd)
 		WinRestore hWnd
 		WinMaximize hWnd
-		PT_IS_FULLSCREEN:=false
     }
 
 	if SHOW_PROJECT_NAME
-		DisplayProjectName(PT_IS_FULLSCREEN)
+		DisplayProjectName(IsWindowStyled(PT_MAIN_HWND))
 }
 
 ; style the control to match main window style
 ToggleControl(hWnd) {
-	global PT_IS_FULLSCREEN
 	global PT_MAIN_HWND
 
     if !WinExist(hWnd)
