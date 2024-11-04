@@ -55,7 +55,7 @@ INI_SECTION_SIZE:= "WindowSize"
 INI_KEY_WIDTH:= "WindowWidth"
 INI_WINDOW_WIDTH:= IniRead(INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH, -1)
 if INI_WINDOW_WIDTH == -1{
-	MonitorGetWorkArea(MonitorGetPrimary(), &Left, &Top, &Right, &Bottom)
+	MonitorGetWorkArea(PT_MONITOR, &Left, &Top, &Right, &Bottom)
 	IniWrite(INI_WINDOW_WIDTH:= Right - Left, INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH)
 }
 
@@ -140,7 +140,7 @@ WindowTimer(){
 	; hide project name if pt is closed
 	if PT_MAIN_HWND = 0	{
 		if SHOW_PROJECT_NAME {
-			prjw.Visible(false)
+			prjw.Visible:=false
 		}
 		return
 	}
