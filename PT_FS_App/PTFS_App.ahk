@@ -9,10 +9,12 @@ PT_FS_App - Make Pro Tools borderless
 Version: 0.9.2b
 
 TODO:
-	- event move glitching, need other MDI window resize code
+
 History
+0.9.4b
+	- fix region move glitch when window fullscreen with KEEP_MAIN_WINDOW true
 0.9.3b
-	- added option for keeping main window border
+	- added option for keeping main window border KEEP_MAIN_WINDOW
 	- update code for project name when main window has border
 
 0.9.2b
@@ -82,10 +84,10 @@ if PT_MAIN_HWND:=WinExist(PT_WINDOW) {
 		MENU_PTR:=IniRead(INI_FILE, "Instance", "MENU_PTR", "0")
 
 	; if full screen start window timer
-	if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"))
+	if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"), KEEP_MAIN_WINDOW)
 		SetTimer WindowTimer, 250
 	; store init window size
-	WindowSizeChanged(PT_MAIN_HWND, &tempX,&tempY)
+	WindowSizeChanged(PT_MAIN_HWND)
 }
 ; if window already has a visible menu, do not try to show it
 if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
@@ -161,9 +163,9 @@ WindowTimer() {
 
 	pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
 	pt_mix_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Mix:")
-	if !IsWindowStyled(pt_mix_hWnd)
+	if !IsWindowStyled(pt_mix_hWnd, KEEP_MAIN_WINDOW)
 		ToggleControl(pt_mix_hWnd)
-	if !IsWindowStyled(pt_edit_hWnd)
+	if !IsWindowStyled(pt_edit_hWnd, KEEP_MAIN_WINDOW)
 		ToggleControl(pt_edit_hWnd)
 
 	if !SHOW_PROJECT_NAME
@@ -174,12 +176,12 @@ WindowTimer() {
 
 	if KEEP_MAIN_WINDOW	{
 		DisplayProjectInTitle( GetProjectName() )
-		if WindowSizeChanged(PT_MAIN_HWND, &W, &H) {
-			; resize edit and mix windows
-			Woffset:=15
-			Hoffest:=55
-			WinMove(0, 0, W-Woffset, H-Hoffest, pt_edit_hWnd)
-			WinMove(0, 0, W-Woffset, H-Hoffest, pt_mix_hWnd)
+		if WindowSizeChanged(PT_MAIN_HWND) {
+			;WinGetClientPos(,,&W,&H,PT_MAIN_HWND)
+			;WinMove(0, 0, W, H, pt_edit_hWnd)
+			;WinMove(0, 0, W, H, pt_mix_hWnd)
+			MaximizeMDIWin(pt_mix_hWnd)
+			MaximizeMDIWin(pt_edit_hWnd)
 		}
 		return
 	}
@@ -197,20 +199,18 @@ WindowTimer() {
 
 }
 
-WindowSizeChanged(hWnd, &WWidth, &WHeight){
+WindowSizeChanged(hWnd) {
 	static Width:=0, Height:=0
 	WinGetPos(,,&W,&H,hWnd)
 	if W!=Width || H!=Height{
 		Width:=W
-		WWidth:=W
 		Height:=H
-		WHeight:=H
 		return true
 	}
 	return false
 }
 
-DisplayProjectInTitle(name:=""){
+DisplayProjectInTitle(name:="") {
 	If name = "" {
 		WinSetTitle("Pro Tools", PT_MAIN_HWND)
 		return
@@ -244,7 +244,7 @@ TogglePTFullScreen() {
 		ToggleControl(pt_mix_hWnd)
 		ToggleControl(pt_edit_hWnd)
 
-		if IsWindowStyled(pt_edit_hWnd)
+		if IsWindowStyled(pt_edit_hWnd, true)
 			SetTimer WindowTimer, 250
 		else
 			DisplayProjectInTitle("")
@@ -299,41 +299,42 @@ ToggleMainWindow(hWnd) {
     }
 }
 
+MaximizeMDIWin(hWnd){
+	WinGetClientPos(,,&W,&H,PT_MAIN_HWND)
+	WinMove(0,0, W, H, hWnd)
+}
+
 ; style the control to match main window style
-ToggleControl(hWnd){
+ToggleControl(hWnd) {
     if !WinExist(hWnd)
         return false
-	if !KEEP_MAIN_WINDOW {
-		if IsWindowStyled(PT_MAIN_HWND) {
-			if !IsWindowStyled(hWnd) {
-				WinMove 0,0,,,hWnd
-				ToggleStyles hWnd
-				WinRestore hWnd
-				WinMaximize hWnd
-			}
+
+	if KEEP_MAIN_WINDOW {
+		if !IsWindowStyled(hWnd) {
+			MaximizeMDIWin(hWnd)
+			ToggleStyles hWnd, true
 		}
 		else {
-			if IsWindowStyled(hWnd) {
-					ToggleStyles hWnd
-					WinRestore hWnd
-					WinMaximize hWnd
-			}
+			ToggleStyles hWnd, true
+			WinRestore hWnd
+			WinMaximize hWnd
 		}
+		return
 	}
-	else
-	{
+
+	if IsWindowStyled(PT_MAIN_HWND) {
 		if !IsWindowStyled(hWnd) {
 			WinMove 0,0,,,hWnd
 			ToggleStyles hWnd
 			WinRestore hWnd
 			WinMaximize hWnd
-		} else	{
-
+		}
+	}
+	else {
+		if IsWindowStyled(hWnd) {
 				ToggleStyles hWnd
 				WinRestore hWnd
 				WinMaximize hWnd
-
 		}
 	}
-
 }
