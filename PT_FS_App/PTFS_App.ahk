@@ -9,8 +9,12 @@ PT_FS_App - Make Pro Tools borderless
 Version: 0.9.2b
 
 TODO:
-	- menu toggle on mouse hoover
+	- event move glitching, need other MDI window resize code
 History
+0.9.3b
+	- added option for keeping main window border
+	- update code for project name when main window has border
+
 0.9.2b
 	- fix project name window
 0.9.1b
@@ -47,6 +51,11 @@ CUSTOM_WIDTH:= false
 ; Default: true
 SHOW_PROJECT_NAME:= true
 
+; Keep main window border and menu
+; Default: false
+KEEP_MAIN_WINDOW:= false
+
+
 ; <<<<<< Configure
 
 INI_PATH:=A_ScriptDir "\"
@@ -54,7 +63,7 @@ INI_FILE:=INI_PATH "PTFS_App.ini"
 INI_SECTION_SIZE:= "WindowSize"
 INI_KEY_WIDTH:= "WindowWidth"
 INI_WINDOW_WIDTH:= IniRead(INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH, -1)
-if INI_WINDOW_WIDTH == -1{
+if INI_WINDOW_WIDTH == -1 {
 	MonitorGetWorkArea(PT_MONITOR, &Left, &Top, &Right, &Bottom)
 	IniWrite(INI_WINDOW_WIDTH:= Right - Left, INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH)
 }
@@ -69,9 +78,14 @@ MENU_PTR:=0
 PT_MAIN_HWND:=0
 if PT_MAIN_HWND:=WinExist(PT_WINDOW) {
 	; if instance matches, load menu pointer from INI
-	if IniRead(INI_FILE, "Instance", "PT_MAIN_HWND", "0") = PT_MAIN_HWND {
+	if IniRead(INI_FILE, "Instance", "PT_MAIN_HWND", "0") = PT_MAIN_HWND
 		MENU_PTR:=IniRead(INI_FILE, "Instance", "MENU_PTR", "0")
-	}
+
+	; if full screen start window timer
+	if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"))
+		SetTimer WindowTimer, 250
+	; store init window size
+	WindowSizeChanged(PT_MAIN_HWND, &tempX,&tempY)
 }
 ; if window already has a visible menu, do not try to show it
 if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
@@ -132,7 +146,7 @@ ToggleMenu() {
 
 ; updates the project name
 ; updates the edit/mix window styles when project opened
-WindowTimer(){
+WindowTimer() {
 	global PT_MAIN_HWND
 	global MENU_PTR
 
@@ -147,8 +161,10 @@ WindowTimer(){
 
 	pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
 	pt_mix_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Mix:")
-	ToggleControl(pt_mix_hWnd)
-	ToggleControl(pt_edit_hWnd)
+	if !IsWindowStyled(pt_mix_hWnd)
+		ToggleControl(pt_mix_hWnd)
+	if !IsWindowStyled(pt_edit_hWnd)
+		ToggleControl(pt_edit_hWnd)
 
 	if !SHOW_PROJECT_NAME
 		return
@@ -156,46 +172,96 @@ WindowTimer(){
 	; update project name text
 	prjw.ProjectName:= GetProjectName()
 
-	; window styled , menu visible => show project name
+	if KEEP_MAIN_WINDOW	{
+		DisplayProjectInTitle( GetProjectName() )
+		if WindowSizeChanged(PT_MAIN_HWND, &W, &H) {
+			; resize edit and mix windows
+			Woffset:=15
+			Hoffest:=55
+			WinMove(0, 0, W-Woffset, H-Hoffest, pt_edit_hWnd)
+			WinMove(0, 0, W-Woffset, H-Hoffest, pt_mix_hWnd)
+		}
+		return
+	}
+	; main window styled , menu visible => show project name
 	if IsWindowStyled(PT_MAIN_HWND) && DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
 		prjw.Visible:=true
 
 	; window not styled => hide project name
-	if !IsWindowStyled(PT_MAIN_HWND)
-		prjw.Visible:=false
+	;if !IsWindowStyled(PT_MAIN_HWND)
+	;	prjw.Visible:=false
 
 	; window inactive => hide project name
 	if PT_MAIN_HWND != WinActive(PT_WINDOW)
 		prjw.Visible:=false
 
-	; menu hidden => hide project name
-	if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) = 0
-		prjw.Visible:=false
 }
 
-GetProjectName(){
+WindowSizeChanged(hWnd, &WWidth, &WHeight){
+	static Width:=0, Height:=0
+	WinGetPos(,,&W,&H,hWnd)
+	if W!=Width || H!=Height{
+		Width:=W
+		WWidth:=W
+		Height:=H
+		WHeight:=H
+		return true
+	}
+	return false
+}
 
-	try{
+DisplayProjectInTitle(name:=""){
+	If name = "" {
+		WinSetTitle("Pro Tools", PT_MAIN_HWND)
+		return
+	}
+	WinSetTitle("Pro Tools - " name , PT_MAIN_HWND)
+}
+
+GetProjectName() {
+
+	try {
 		pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
 		name:=LTrim(ControlGetText(pt_edit_hWnd),"Edit: ")
 		return name
-	} catch
+	}
+	catch
 		return ""
 }
 
-TogglePTFullScreen(){
+TogglePTFullScreen() {
 	global PT_MAIN_HWND
 
     PT_MAIN_HWND:= WinExist(PT_WINDOW)
 	if PT_MAIN_HWND == 0
         return 0
 
+	SetTimer WindowTimer, 0
+
+	if KEEP_MAIN_WINDOW {
+		pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
+		pt_mix_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Mix:")
+		ToggleControl(pt_mix_hWnd)
+		ToggleControl(pt_edit_hWnd)
+
+		if IsWindowStyled(pt_edit_hWnd)
+			SetTimer WindowTimer, 250
+		else
+			DisplayProjectInTitle("")
+
+		return
+	}
+
 	ToggleMainWindow(PT_MAIN_HWND)
+	pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
+	pt_mix_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Mix:")
+	ToggleControl(pt_mix_hWnd)
+	ToggleControl(pt_edit_hWnd)
 
 	if IsWindowStyled(PT_MAIN_HWND)
 		SetTimer WindowTimer, 250
 	else
-		SetTimer WindowTimer, -250 ; negative means run once in specified interval
+		prjw.Visible:=false
 
 	; Send Ctrl + =  twice, force a redraw
     ;WinActivate PT_MAIN_HWND
@@ -210,7 +276,7 @@ ToggleMainWindow(hWnd) {
 	if !WinExist(hWnd)
         return false
 
-    if !IsWindowStyled(hWnd){
+    if !IsWindowStyled(hWnd) {
 		; make window fulll screen
         ToggleStyles(hWnd)
 		MonitorGetWorkArea(PT_MONITOR, &Left, &Top, &Right, &Bottom)
@@ -234,23 +300,40 @@ ToggleMainWindow(hWnd) {
 }
 
 ; style the control to match main window style
-ToggleControl(hWnd) {
+ToggleControl(hWnd){
     if !WinExist(hWnd)
         return false
-
-	if IsWindowStyled(PT_MAIN_HWND) {
+	if !KEEP_MAIN_WINDOW {
+		if IsWindowStyled(PT_MAIN_HWND) {
+			if !IsWindowStyled(hWnd) {
+				WinMove 0,0,,,hWnd
+				ToggleStyles hWnd
+				WinRestore hWnd
+				WinMaximize hWnd
+			}
+		}
+		else {
+			if IsWindowStyled(hWnd) {
+					ToggleStyles hWnd
+					WinRestore hWnd
+					WinMaximize hWnd
+			}
+		}
+	}
+	else
+	{
 		if !IsWindowStyled(hWnd) {
 			WinMove 0,0,,,hWnd
 			ToggleStyles hWnd
 			WinRestore hWnd
 			WinMaximize hWnd
-		}
-	}
-	else {
-		if IsWindowStyled(hWnd){
+		} else	{
+
 				ToggleStyles hWnd
 				WinRestore hWnd
 				WinMaximize hWnd
+
 		}
 	}
+
 }
