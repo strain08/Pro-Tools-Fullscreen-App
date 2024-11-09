@@ -57,6 +57,9 @@ SHOW_PROJECT_NAME:= true
 ; Default: false
 KEEP_MAIN_WINDOW:= false
 
+; If KEEP_MAIN_WINDOW is true
+; wil use WM_BORDER as window style, otherwise will remove all borders
+THIN_BORDER:= false
 
 ; <<<<<< Configure
 
@@ -84,7 +87,7 @@ if PT_MAIN_HWND:=WinExist(PT_WINDOW) {
 		MENU_PTR:=IniRead(INI_FILE, "Instance", "MENU_PTR", "0")
 
 	; if full screen start window timer
-	if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"), KEEP_MAIN_WINDOW)
+	if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"), KEEP_MAIN_WINDOW && THIN_BORDER)
 		SetTimer WindowTimer, 250
 	; store init window size
 	WindowSizeChanged(PT_MAIN_HWND)
@@ -163,9 +166,9 @@ WindowTimer() {
 
 	pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
 	pt_mix_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Mix:")
-	if !IsWindowStyled(pt_mix_hWnd, KEEP_MAIN_WINDOW)
+	if !IsWindowStyled(pt_mix_hWnd, KEEP_MAIN_WINDOW && THIN_BORDER)
 		ToggleControl(pt_mix_hWnd)
-	if !IsWindowStyled(pt_edit_hWnd, KEEP_MAIN_WINDOW)
+	if !IsWindowStyled(pt_edit_hWnd, KEEP_MAIN_WINDOW && THIN_BORDER)
 		ToggleControl(pt_edit_hWnd)
 
 	if !SHOW_PROJECT_NAME
@@ -177,9 +180,6 @@ WindowTimer() {
 	if KEEP_MAIN_WINDOW	{
 		DisplayProjectInTitle( GetProjectName() )
 		if WindowSizeChanged(PT_MAIN_HWND) {
-			;WinGetClientPos(,,&W,&H,PT_MAIN_HWND)
-			;WinMove(0, 0, W, H, pt_edit_hWnd)
-			;WinMove(0, 0, W, H, pt_mix_hWnd)
 			MaximizeMDIWin(pt_mix_hWnd)
 			MaximizeMDIWin(pt_edit_hWnd)
 		}
@@ -188,10 +188,6 @@ WindowTimer() {
 	; main window styled , menu visible => show project name
 	if IsWindowStyled(PT_MAIN_HWND) && DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
 		prjw.Visible:=true
-
-	; window not styled => hide project name
-	;if !IsWindowStyled(PT_MAIN_HWND)
-	;	prjw.Visible:=false
 
 	; window inactive => hide project name
 	if PT_MAIN_HWND != WinActive(PT_WINDOW)
@@ -232,19 +228,21 @@ GetProjectName() {
 TogglePTFullScreen() {
 	global PT_MAIN_HWND
 
-    PT_MAIN_HWND:= WinExist(PT_WINDOW)
+	PT_MAIN_HWND:= WinExist(PT_WINDOW)
+
 	if PT_MAIN_HWND == 0
         return 0
+
+	pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
+	pt_mix_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Mix:")
 
 	SetTimer WindowTimer, 0
 
 	if KEEP_MAIN_WINDOW {
-		pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
-		pt_mix_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Mix:")
 		ToggleControl(pt_mix_hWnd)
 		ToggleControl(pt_edit_hWnd)
 
-		if IsWindowStyled(pt_edit_hWnd, true)
+		if IsWindowStyled(pt_edit_hWnd, KEEP_MAIN_WINDOW && THIN_BORDER)
 			SetTimer WindowTimer, 250
 		else
 			DisplayProjectInTitle("")
@@ -253,8 +251,6 @@ TogglePTFullScreen() {
 	}
 
 	ToggleMainWindow(PT_MAIN_HWND)
-	pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
-	pt_mix_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Mix:")
 	ToggleControl(pt_mix_hWnd)
 	ToggleControl(pt_edit_hWnd)
 
@@ -312,10 +308,10 @@ ToggleControl(hWnd) {
 	if KEEP_MAIN_WINDOW {
 		if !IsWindowStyled(hWnd) {
 			MaximizeMDIWin(hWnd)
-			ToggleStyles hWnd, true
+			ToggleStyles(hWnd, KEEP_MAIN_WINDOW && THIN_BORDER)
 		}
 		else {
-			ToggleStyles hWnd, true
+			ToggleStyles(hWnd, KEEP_MAIN_WINDOW && THIN_BORDER)
 			WinRestore hWnd
 			WinMaximize hWnd
 		}
