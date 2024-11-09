@@ -6,11 +6,14 @@
 /*
 -------------------------------------
 PT_FS_App - Make Pro Tools borderless
-Version: 0.9.2b
+Version: 0.9.5b
 
 TODO:
 
 History
+0.9.5b
+	- shortcuts will trigger only when PT window is active
+	- added THIN_BORDER option
 0.9.4b
 	- fix region move glitch when window fullscreen with KEEP_MAIN_WINDOW true
 0.9.3b
@@ -33,12 +36,19 @@ History
 	- initial release
 -------------------------------------
 */
+PT_WINDOW:="ahk_class DigiAppWndClass"
 
 ; >>>>> Configure
 
+; Shortcuts
+#HotIf WinActive(PT_WINDOW)
+
 ; Toggle fullscreen shortcut
 ^F12:: TogglePTFullScreen()
+; Toggle menu shortcut
 MButton:: ToggleMenu()
+
+#HotIf
 
 ; Monitor to make Pro Tools full screen on.
 ; Default: MonitorGetPrimary()
@@ -57,9 +67,11 @@ SHOW_PROJECT_NAME:= true
 ; Default: false
 KEEP_MAIN_WINDOW:= false
 
-; If KEEP_MAIN_WINDOW is true
-; wil use WM_BORDER as window style, otherwise will remove all borders
-THIN_BORDER:= false
+; Works only when KEEP_MAIN_WINDOW:= true
+; true: wil use WM_BORDER as window style; false: remove all borders from edit and mix windows
+; Prevents glitching on 1080p monitors at least
+; Default: true
+THIN_BORDER:= true
 
 ; <<<<<< Configure
 
