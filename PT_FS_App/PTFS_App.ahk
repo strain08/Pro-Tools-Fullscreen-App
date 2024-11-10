@@ -6,11 +6,13 @@
 /*
 -------------------------------------
 PT_FS_App - Make Pro Tools borderless
-Version: 0.9.6b
+Version: 0.9.7b
 
 TODO:
 
 History
+0.9.7b
+	- load settings from INI file
 0.9.6b
 	- added AUTO_FULLSCREEN option
 	- added some checks against missing hwnd's
@@ -41,6 +43,9 @@ History
 */
 PT_WINDOW:="ahk_class DigiAppWndClass"
 
+INI_PATH:=A_ScriptDir "\"
+INI_FILE:=INI_PATH "PTFS_App.ini"
+
 ; >>>>> Configure
 
 ; Shortcuts
@@ -54,37 +59,47 @@ MButton:: ToggleMenu()
 
 #HotIf
 
+; <<<<<< Configure
+
+; Load settings from INI_FILE
+
+ReadSetting(Section, Name, Default){
+	try{
+		return IniRead(INI_FILE, Section, Name)
+	}
+	catch{
+		IniWrite(Default,INI_FILE,Section, Name)
+		return Default
+	}
+}
+
 ; Monitor to make Pro Tools full screen on.
 ; Default: MonitorGetPrimary()
-PT_MONITOR:= MonitorGetPrimary()
+PT_MONITOR:= ReadSetting("General", "PT_Monitor", MonitorGetPrimary())
 
 ; Custom window width.
 ; True: Read the window width from INI file.
 ; False:(default) Use PT_MONITOR width.
-CUSTOM_WIDTH:= false
+CUSTOM_WIDTH:= ReadSetting("General", "Custom_Width", false)
 
 ; Show project name when window in focus
 ; Default: true
-SHOW_PROJECT_NAME:= true
+SHOW_PROJECT_NAME:= ReadSetting("General", "Show_Project_Name", true)
 
 ; Keep main window border and menu
 ; Default: false
-KEEP_MAIN_WINDOW:= false
+KEEP_MAIN_WINDOW:= ReadSetting("General", "Keep_Main_Window", false)
 
 ; Works only when KEEP_MAIN_WINDOW:= true
 ; true: wil use WM_BORDER as window style; false: remove all borders from edit and mix windows
 ; Prevents glitching on 1080p monitors at least
 ; Default: true
-THIN_BORDER:= true
+THIN_BORDER:= ReadSetting("General", "Thin_Border", true)
 
 ; Toggles full screen mode when Pro Tools starts
 ; Default: false
-AUTO_FULLSCREEN:= false
+AUTO_FULLSCREEN:= ReadSetting("General", "Auto_Fullscreen", false)
 
-; <<<<<< Configure
-
-INI_PATH:=A_ScriptDir "\"
-INI_FILE:=INI_PATH "PTFS_App.ini"
 INI_SECTION_SIZE:= "WindowSize"
 INI_KEY_WIDTH:= "WindowWidth"
 INI_WINDOW_WIDTH:= IniRead(INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH, -1)
