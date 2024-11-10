@@ -6,11 +6,14 @@
 /*
 -------------------------------------
 PT_FS_App - Make Pro Tools borderless
-Version: 0.9.5b
+Version: 0.9.6b
 
 TODO:
 
 History
+0.9.6b
+	- added AUTO_FULLSCREEN option
+	- added some checks against missing hwnd's
 0.9.5b
 	- shortcuts will trigger only when PT window is active
 	- added THIN_BORDER option
@@ -45,7 +48,8 @@ PT_WINDOW:="ahk_class DigiAppWndClass"
 
 ; Toggle fullscreen shortcut
 ^F12:: TogglePTFullScreen()
-; Toggle menu shortcut
+
+; Toggle menu shortcut, only when KEEP_MAIN_WINDOW:= false
 MButton:: ToggleMenu()
 
 #HotIf
@@ -56,7 +60,7 @@ PT_MONITOR:= MonitorGetPrimary()
 
 ; Custom window width.
 ; True: Read the window width from INI file.
-; False (default): Use PT_MONITOR width.
+; False:(default) Use PT_MONITOR width.
 CUSTOM_WIDTH:= false
 
 ; Show project name when window in focus
@@ -72,6 +76,10 @@ KEEP_MAIN_WINDOW:= false
 ; Prevents glitching on 1080p monitors at least
 ; Default: true
 THIN_BORDER:= true
+
+; Toggles full screen mode when Pro Tools starts
+; Default: false
+AUTO_FULLSCREEN:= false
 
 ; <<<<<< Configure
 
@@ -104,6 +112,28 @@ if PT_MAIN_HWND:=WinExist(PT_WINDOW) {
 	; store init window size
 	WindowSizeChanged(PT_MAIN_HWND)
 }
+; Update HWND's for PT main window and MDI windows
+; Toggle fullscreen if AUTO_FULLSCREEN is true
+SetTimer HwndUpdate, 1000
+
+HwndUpdate() {
+	global PT_MAIN_HWND, MENU_PTR
+	PT_MAIN_HWND:=WinWait(PT_WINDOW)
+	if !GetMDIWindow(PT_MAIN_HWND, "Edit:")
+		return
+	if !GetMDIWindow(PT_MAIN_HWND, "Mix:")
+		return
+	if AUTO_FULLSCREEN {
+		if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"), KEEP_MAIN_WINDOW && THIN_BORDER)
+			return
+		TogglePTFullScreen()
+		MenuSelect(PT_MAIN_HWND, "", "Window", "Edit")
+	}
+	WinWaitClose(PT_WINDOW)
+	PT_MAIN_HWND:=0
+	MENU_PTR:=0
+}
+
 ; if window already has a visible menu, do not try to show it
 if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
 	MENU_PTR := 0
@@ -112,8 +142,6 @@ if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
 ToggleMenu() {
 	global MENU_PTR
 
-	if !PT_MAIN_HWND:=WinActive(PT_WINDOW)
-		return
 	if !IsWindowStyled(PT_MAIN_HWND) ; check if window is full screen
 		return
 	if WinExist("ahk_class #32768") ; do not toggle if window menu is open
@@ -208,6 +236,8 @@ WindowTimer() {
 }
 
 WindowSizeChanged(hWnd) {
+	if !WinExist(hWnd)
+		return
 	static Width:=0, Height:=0
 	WinGetPos(,,&W,&H,hWnd)
 	if W!=Width || H!=Height{
@@ -219,11 +249,13 @@ WindowSizeChanged(hWnd) {
 }
 
 DisplayProjectInTitle(name:="") {
-	If name = "" {
-		WinSetTitle("Pro Tools", PT_MAIN_HWND)
-		return
+	try{
+		If name == "" {
+			WinSetTitle("Pro Tools", PT_MAIN_HWND)
+			return
+		}
+		WinSetTitle("Pro Tools - " name , PT_MAIN_HWND)
 	}
-	WinSetTitle("Pro Tools - " name , PT_MAIN_HWND)
 }
 
 GetProjectName() {
@@ -243,7 +275,7 @@ TogglePTFullScreen() {
 	PT_MAIN_HWND:= WinExist(PT_WINDOW)
 
 	if PT_MAIN_HWND == 0
-        return 0
+        return
 
 	pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
 	pt_mix_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Mix:")
@@ -270,12 +302,6 @@ TogglePTFullScreen() {
 		SetTimer WindowTimer, 250
 	else
 		prjw.Visible:=false
-
-	; Send Ctrl + =  twice, force a redraw
-    ;WinActivate PT_MAIN_HWND
-    ;Send "^="
-    ;Send "^="
-	;WinRedraw PT_MAIN_HWND
 }
 
 ToggleMainWindow(hWnd) {
@@ -307,9 +333,11 @@ ToggleMainWindow(hWnd) {
     }
 }
 
-MaximizeMDIWin(hWnd){
-	WinGetClientPos(,,&W,&H,PT_MAIN_HWND)
-	WinMove(0,0, W, H, hWnd)
+MaximizeMDIWin(hWnd) {
+	try {
+		WinGetClientPos(,,&W,&H,PT_MAIN_HWND)
+		WinMove(0,0, W, H, hWnd)
+	}
 }
 
 ; style the control to match main window style
