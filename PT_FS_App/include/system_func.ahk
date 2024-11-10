@@ -1,7 +1,7 @@
 #Requires AutoHotkey v2.0
 
-ToggleStyles(hWnd, sizeMethod:=false){
-	if sizeMethod {
+ToggleStyles(hWnd, thinBorder:=false){
+	if thinBorder {
 		WinSetStyle "^0xC00000", hWnd ; WS_CAPTION
 		WinSetStyle "^0x080000", hWnd ; WS_BORDER (thin border)
 		return
@@ -11,10 +11,10 @@ ToggleStyles(hWnd, sizeMethod:=false){
 
 }
 
-IsWindowStyled(hWnd, sizeMethod:=false){
+IsWindowStyled(hWnd, thinBorder:=false){
 	if !WinExist(hWnd)
         return false
-	if sizeMethod{
+	if thinBorder{
 		if WinGetStyle(hWnd) & 0xC00000
 			return false
 		else
