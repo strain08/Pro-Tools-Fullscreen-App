@@ -1,6 +1,9 @@
 #Requires AutoHotkey v2.0
 
 ToggleStyles(hWnd, thinBorder:=false){
+	if !WinExist(hWnd)
+        return
+
 	if thinBorder {
 		WinSetStyle "^0xC00000", hWnd ; WS_CAPTION
 		WinSetStyle "^0x080000", hWnd ; WS_BORDER (thin border)
@@ -14,6 +17,7 @@ ToggleStyles(hWnd, thinBorder:=false){
 IsWindowStyled(hWnd, thinBorder:=false){
 	if !WinExist(hWnd)
         return false
+
 	if thinBorder{
 		if WinGetStyle(hWnd) & 0xC00000
 			return false
