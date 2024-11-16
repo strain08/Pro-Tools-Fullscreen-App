@@ -121,13 +121,15 @@ HwndUpdate() {
 	if !GetMDIWindow(PT_MAIN_HWND, "Mix:")
 		return
 	if AUTO_FULLSCREEN {
-		if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"), KEEP_MAIN_WINDOW && THIN_BORDER)
+		if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"), KEEP_MAIN_WINDOW && THIN_BORDER){
+			WinWaitClose(PT_WINDOW)
+			MENU_PTR:=0
 			return
+		}
 		TogglePTFullScreen(PT_MAIN_HWND)
 		MenuSelect(PT_MAIN_HWND, "", "Window", "Edit")
 	}
 	WinWaitClose(PT_WINDOW)
-	PT_MAIN_HWND:=0
 	MENU_PTR:=0
 }
 
@@ -140,6 +142,9 @@ ToggleMenu(PT_MAIN_HWND) {
 	if WinExist("ahk_class #32768") ; do not toggle if window menu is open
 		return
 
+	pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
+	pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")
+
 	if MENU_PTR = 0 {
 		; hide project window
 		prjw.Visible:=false
@@ -147,8 +152,6 @@ ToggleMenu(PT_MAIN_HWND) {
 		MENU_PTR := DllCall("GetMenu", "Ptr", PT_MAIN_HWND) ; store menu pointer
 		DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", 0)
 		; adjust edit and mix window bottom, they will be off by 20 pixels when menu is hidden
-		pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
-		pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")
 		WinGetPos(,,,&Height, pt_edit_hWnd)
 		WinMove(,,,Height+20, pt_edit_hWnd)
 		WinGetPos(,,,&Height, pt_mix_hWnd)
@@ -168,8 +171,6 @@ ToggleMenu(PT_MAIN_HWND) {
 		; show menu
 		DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", MENU_PTR)
 		; adjust edit and mix window bottom
-		pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
-		pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")
 		WinGetPos(, &YPos,, &Height, pt_edit_hWnd)
 		WinMove(, YPos-20,, Height-20, pt_edit_hWnd)
 		WinGetPos(, &YPos,, &Height, pt_mix_hWnd)
@@ -275,12 +276,14 @@ TogglePTFullScreen(PT_MAIN_HWND) {
 		ToggleMDIWin(PT_MAIN_HWND, pt_mix_hWnd)
 		ToggleMDIWin(PT_MAIN_HWND, pt_edit_hWnd)
 
-		if IsWindowStyled(pt_edit_hWnd, KEEP_MAIN_WINDOW && THIN_BORDER)
+		if IsWindowStyled(pt_edit_hWnd, KEEP_MAIN_WINDOW && THIN_BORDER){
 			SetTimer MDITimer, 250
+		}
 		else{
 			DisplayProjectInTitle(PT_MAIN_HWND,"")
 			SetTimer MDITimer, 0
 		}
+
 		return
 	}
 
