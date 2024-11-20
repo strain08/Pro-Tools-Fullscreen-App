@@ -6,7 +6,10 @@
 /*
 -------------------------------------
 PT_FS_App - Make Pro Tools borderless
-Version: 0.9.7b
+https://github.com/strain08/Pro-Tools-Fullscreen-App
+
+Version: 0.9.10b
+
 */
 
 PT_WINDOW:="ahk_class DigiAppWndClass"
@@ -35,22 +38,22 @@ MButton:: ToggleMenu(WinActive(PT_WINDOW))
 
 ReadSetting(Section, Name, Default){
 	try{
-		return IniRead(INI_FILE, Section, Name)
+		value:=IniRead(INI_FILE, Section, Name)
+		; switch case-insensitive
+		switch value, false{
+			case "true":
+				return true
+			case "false":
+				return false
+			default:
+				return value
+		}
 	}
 	catch{
 		IniWrite(Default,INI_FILE,Section, Name)
 		return Default
 	}
 }
-
-; Monitor to make Pro Tools full screen on.
-; Default: MonitorGetPrimary()
-PT_MONITOR:= ReadSetting("General", "PT_Monitor", MonitorGetPrimary())
-
-; Custom window width.
-; True: Read the window width from INI file.
-; False:(default) Use PT_MONITOR width.
-CUSTOM_WIDTH:= ReadSetting("General", "Custom_Width", false)
 
 ; Show project name when window in focus
 ; Default: true
@@ -60,7 +63,7 @@ SHOW_PROJECT_NAME:= ReadSetting("General", "Show_Project_Name", true)
 ; Default: false
 KEEP_MAIN_WINDOW:= ReadSetting("General", "Keep_Main_Window", false)
 
-; Works only when KEEP_MAIN_WINDOW:= true
+; Works only when KEEP_MAIN_WINDOW = true
 ; true: wil use WM_BORDER as window style; false: remove all borders from edit and mix windows
 ; Prevents glitching on 1080p monitors at least
 ; Default: true
@@ -70,13 +73,17 @@ THIN_BORDER:= ReadSetting("General", "Thin_Border", true)
 ; Default: false
 AUTO_FULLSCREEN:= ReadSetting("General", "Auto_Fullscreen", false)
 
-INI_SECTION_SIZE:= "WindowSize"
-INI_KEY_WIDTH:= "WindowWidth"
-INI_WINDOW_WIDTH:= IniRead(INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH, -1)
-if INI_WINDOW_WIDTH == -1 {
-	MonitorGetWorkArea(PT_MONITOR, &Left, &Top, &Right, &Bottom)
-	IniWrite(INI_WINDOW_WIDTH:= Right - Left, INI_FILE, INI_SECTION_SIZE, INI_KEY_WIDTH)
-}
+; Monitor to make Pro Tools full screen on.
+; Default: MonitorGetPrimary()
+PT_MONITOR:= ReadSetting("WindowSize", "PT_Monitor", MonitorGetPrimary())
+
+; True: Read main window width from INI file.
+; Default: False (Use PT_MONITOR width)
+CUSTOM_WIDTH:= ReadSetting("WindowSize", "Custom_Width", false)
+
+; Pro Tools Window width when CUSTOM_WIDTH = true
+MonitorGetWorkArea(PT_MONITOR, &Left, &Top, &Right, &Bottom)
+INI_WINDOW_WIDTH:=ReadSetting("WindowSize", "WindowWidth", Right - Left )
 
 Initialize()
 
@@ -105,21 +112,23 @@ Initialize(){
 		}
 		; store init window size
 		WindowSizeChanged(PT_MAIN_HWND)
-
 	}
 
-	; Update HWND's for PT main window and MDI windows
-	; Toggle fullscreen if AUTO_FULLSCREEN is true
 	SetTimer HwndUpdate, 1000
 }
 
+; Toggles fullscreen mode if AUTO_FULLSCREEN = true
+; When Pro Tools exits, clears the menu pointer
 HwndUpdate() {
 	global MENU_PTR
+
 	PT_MAIN_HWND:=WinWait(PT_WINDOW)
+
 	if !GetMDIWindow(PT_MAIN_HWND, "Edit:")
 		return
 	if !GetMDIWindow(PT_MAIN_HWND, "Mix:")
 		return
+
 	if AUTO_FULLSCREEN {
 		if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"), KEEP_MAIN_WINDOW && THIN_BORDER){
 			WinWaitClose(PT_WINDOW)
@@ -129,6 +138,7 @@ HwndUpdate() {
 		TogglePTFullScreen(PT_MAIN_HWND)
 		MenuSelect(PT_MAIN_HWND, "", "Window", "Edit")
 	}
+
 	WinWaitClose(PT_WINDOW)
 	MENU_PTR:=0
 }
@@ -184,7 +194,7 @@ ToggleMenu(PT_MAIN_HWND) {
 }
 
 ; updates the project name
-; updates the edit/mix window styles when project opened
+; updates the edit/mix window full screen state when project opened/changed
 MDITimer() {
 	global MENU_PTR
 

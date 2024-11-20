@@ -1,3 +1,7 @@
+0.9.10b
+	- INI file: moved PT_MONITOR and CUSTOM_WIDTH to WindowSize section
+	- INI file: boolean options can also be set as literal "true" or "false"
+	- guard for error when toggling window styles
 0.9.9b
     - fix double toggeling when pt window already open
 0.9.8b
