@@ -9,8 +9,8 @@ MainState(PT_MAIN_HWND, Settings, fullscreen) {
 		return
 	ToggleMainWindow(PT_MAIN_HWND, Settings)
 }
-; toggles main program window
-; restores menu if hidden
+; Toggles main program window.
+; Restores menu if hidden.
 ToggleMainWindow(PT_MAIN_HWND, Settings) {
 	global MENU_PTR
 
@@ -43,7 +43,7 @@ ToggleMainWindow(PT_MAIN_HWND, Settings) {
 ; toggle main window borders
 SetPTFullscreen(PT_MAIN_HWND, Settings, fullscreen) {
 
-	GetMDIWindows(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
+	MDIGetHandles(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
 
 	style:=IsWindowStyled(PT_MAIN_HWND)
 	edit_styled:=IsWindowStyled(edit_hwnd, Settings.KEEP_MAIN_WINDOW && Settings.THIN_BORDER)

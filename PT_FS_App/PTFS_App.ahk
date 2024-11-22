@@ -58,7 +58,7 @@ Init() {
 			MENU_PTR := 0
 		}
 		; if full screen start window timer
-		if IsWindowStyled(GetMDIWindow(PT_MAIN_HWND, "Edit:"), Settings.KEEP_MAIN_WINDOW && Settings.THIN_BORDER) {
+		if IsWindowStyled(MDIGetWindowHandle(PT_MAIN_HWND, "Edit:"), Settings.KEEP_MAIN_WINDOW && Settings.THIN_BORDER) {
 			SetTimer MDITimer, 250
 		}
 		; store init window size
@@ -76,7 +76,7 @@ AutoFullscreen() {
 	global MENU_PTR
 
 	PT_MAIN_HWND:=WinWait(PT_WINDOW)
-	GetMDIWindows(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
+	MDIGetHandles(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
 
 	if !edit_hwnd || !mix_hwnd
 		return
@@ -88,19 +88,19 @@ AutoFullscreen() {
 	MENU_PTR:=0
 }
 
-; toggle pt and child windows borders
+; Toggle pt and child windows borders.
 TogglePTFullScreen(PT_MAIN_HWND) {
 
 	if PT_MAIN_HWND == 0
         return
 
-	GetMDIWindows(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
+	MDIGetHandles(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
 
 	SetTimer MDITimer, 0
 
 	if Settings.KEEP_MAIN_WINDOW {
-		ToggleMDIWin(PT_MAIN_HWND, mix_hwnd)
-		ToggleMDIWin(PT_MAIN_HWND, edit_hwnd)
+		MDIToggleWindow(PT_MAIN_HWND, Settings, mix_hwnd)
+		MDIToggleWindow(PT_MAIN_HWND, Settings,edit_hwnd)
 
 		if IsWindowStyled(edit_hwnd, Settings.KEEP_MAIN_WINDOW && Settings.THIN_BORDER){
 			SetTimer MDITimer, 250
@@ -114,8 +114,8 @@ TogglePTFullScreen(PT_MAIN_HWND) {
 	}
 
 	ToggleMainWindow(PT_MAIN_HWND, Settings)
-	ToggleMDIWin(PT_MAIN_HWND, mix_hwnd)
-	ToggleMDIWin(PT_MAIN_HWND, edit_hwnd)
+	MDIToggleWindow(PT_MAIN_HWND, Settings, mix_hwnd)
+	MDIToggleWindow(PT_MAIN_HWND, Settings, edit_hwnd)
 
 	if IsWindowStyled(PT_MAIN_HWND) {
 		SetTimer MDITimer, 250
@@ -126,7 +126,7 @@ TogglePTFullScreen(PT_MAIN_HWND) {
 	}
 }
 
-; show or hide Pro Tools menu when main window is borderless
+; Show or hide Pro Tools menu when main window is borderless.
 ToggleMenu(PT_MAIN_HWND) {
 	global MENU_PTR
 
@@ -135,8 +135,8 @@ ToggleMenu(PT_MAIN_HWND) {
 	if WinExist("ahk_class #32768") ; do not toggle if window menu is open
 		return
 
-	pt_edit_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Edit:")
-	pt_mix_hWnd:= GetMDIWindow(PT_MAIN_HWND, "Mix:")
+	pt_edit_hWnd:= MDIGetWindowHandle(PT_MAIN_HWND, "Edit:")
+	pt_mix_hWnd:= MDIGetWindowHandle(PT_MAIN_HWND, "Mix:")
 
 	if MENU_PTR = 0 {
 		; hide project window
@@ -176,8 +176,8 @@ ToggleMenu(PT_MAIN_HWND) {
 	}
 }
 
-; updates the project name
-; updates the edit/mix window full screen state when project opened/changed
+; Updates the project name.
+; Updates the edit/mix window full screen state when project opened/changed
 MDITimer() {
 	global MENU_PTR
 
@@ -190,7 +190,7 @@ MDITimer() {
 		return
 	}
 
-	MdiState(PT_MAIN_HWND,true)
+	MDISetState(PT_MAIN_HWND, Settings, true)
 
 	if !Settings.SHOW_PROJECT_NAME
 		return
@@ -201,18 +201,18 @@ MDITimer() {
 	if Settings.KEEP_MAIN_WINDOW	{
 		DisplayProjectInTitle(PT_MAIN_HWND, GetProjectName(PT_MAIN_HWND) )
 		if WindowSizeChanged(PT_MAIN_HWND) {
-			GetMDIWindows(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
-			MaximizeMDIWin(PT_MAIN_HWND, mix_hwnd)
-			MaximizeMDIWin(PT_MAIN_HWND, edit_hwnd)
+			MDIGetHandles(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
+			MDIMaximizeWindow(PT_MAIN_HWND, mix_hwnd)
+			MDIMaximizeWindow(PT_MAIN_HWND, edit_hwnd)
 		}
 		return
 	}
-	; main window styled , menu visible => show project name
-	if IsWindowStyled(PT_MAIN_HWND) && DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
+	; main window styled , menu visible, window active => show project name
+	if IsWindowStyled(PT_MAIN_HWND) && 	DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0 &&	WinActive(PT_WINDOW)
 		prjw.Visible:=true
 
 	; window inactive => hide project name
-	if PT_MAIN_HWND != WinActive(PT_WINDOW)
+	if !WinActive(PT_WINDOW)
 		prjw.Visible:=false
 
 }
@@ -221,7 +221,7 @@ MDITimer() {
 OnExitHandler(*) {
 	if PT_MAIN_HWND:=WinExist(PT_WINDOW){
 		MainState(PT_MAIN_HWND, Settings, false)
-		MdiState(PT_MAIN_HWND, false)
+		MDISetState(PT_MAIN_HWND, Settings, false)
 		if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) == 0 && MENU_PTR != 0 {
 			DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", MENU_PTR)
 		}
