@@ -36,3 +36,24 @@ class projectWindow{
         }
     }
 }
+
+DisplayProjectInTitle(PT_MAIN_HWND, name) {
+	try{
+		If name == "" {
+			WinSetTitle("Pro Tools", PT_MAIN_HWND)
+			return
+		}
+		WinSetTitle("Pro Tools - " name , PT_MAIN_HWND)
+	}
+}
+
+GetProjectName(PT_MAIN_HWND) {
+
+	try {
+		pt_edit_hWnd:=GetMDIWindow(PT_MAIN_HWND, "Edit:")
+		name:=LTrim(ControlGetText(pt_edit_hWnd),"Edit: ")
+		return name
+	}
+	catch
+		return ""
+}

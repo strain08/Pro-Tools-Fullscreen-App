@@ -31,11 +31,4 @@ IsWindowStyled(hWnd, thinBorder:=false){
 		return true
 }
 
-GetMDIWindow(hWnd, ID)
-{
-    try{
-		return ControlGetHwnd(ID,hWnd)
-	}
-    catch
-		return false
-}
+
