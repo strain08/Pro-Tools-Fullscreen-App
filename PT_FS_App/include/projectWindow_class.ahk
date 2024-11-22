@@ -4,6 +4,9 @@ class projectWindow{
     ProjectWindowID := Gui()
     boxWidth:=1350
     boxHeight:=20 ; menu height
+    ; private
+    _project_name:=""
+    _visible:=false
 
     __New(MonitorNumber) {
         MonitorGetWorkArea(MonitorNumber, &Left, &Top, &Right, &Bottom)
@@ -20,19 +23,32 @@ class projectWindow{
     }
 
     ProjectName {
-        set => ControlSetText(Value, this.TextID)
+        set {
+            if Value == this._project_name
+                return
+            ControlSetText(Value, this.TextID)
+            this._project_name:= Value
+        }
     }
 
     Visible{
         set{
+            if Value == this._visible
+                return
+
             if Value{
                 ; only show if not visible, otherwise it will hide the window
                 if !ControlGetVisible(this.ProjectWindowID){
                     this.ProjectWindowID.Show("NoActivate")
-
                 }
-            } else
-                try this.ProjectWindowID.Hide
+            }
+            else{
+                try{
+                    if ControlGetVisible(this.ProjectWindowID)
+                        this.ProjectWindowID.Hide
+                }
+            }
+            this._visible:= Value
         }
     }
 }

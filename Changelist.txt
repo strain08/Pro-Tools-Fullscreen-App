@@ -1,3 +1,5 @@
+0.9.11b
+	- fix flickering project window when KEEP_MAIN_WINDOW=false
 0.9.10b
 	- INI file: moved PT_MONITOR and CUSTOM_WIDTH to WindowSize section
 	- INI file: boolean options can also be set as literal "true" or "false"

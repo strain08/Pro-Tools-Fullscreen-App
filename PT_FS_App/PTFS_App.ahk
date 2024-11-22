@@ -8,7 +8,7 @@
 PT_FS_App - Make Pro Tools borderless
 https://github.com/strain08/Pro-Tools-Fullscreen-App
 
-Version: 0.9.10b
+Version: 0.9.11b
 
 */
 
@@ -229,11 +229,11 @@ MDITimer() {
 		return
 	}
 	; main window styled , menu visible => show project name
-	if IsWindowStyled(PT_MAIN_HWND) && DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
+	if IsWindowStyled(PT_MAIN_HWND) && DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0 && WinActive(PT_MAIN_HWND)
 		prjw.Visible:=true
 
 	; window inactive => hide project name
-	if PT_MAIN_HWND != WinActive(PT_WINDOW)
+	if !WinActive(PT_MAIN_HWND)
 		prjw.Visible:=false
 
 }
