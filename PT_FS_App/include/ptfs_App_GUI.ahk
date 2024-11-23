@@ -62,6 +62,7 @@ ShowSettingsGUI(appSettings){
 
 BuildTrayMenu(appVersion, appSettings){
     tray:=A_TrayMenu
+    TraySetIcon(A_ScriptDir . '\res\ptfsApp.ico')
     tray.Delete()
     tray.Add(appVersion, dummy)
     tray.Add("Options", OptionsMenu_Click)

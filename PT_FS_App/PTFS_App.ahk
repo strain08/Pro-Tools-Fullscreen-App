@@ -228,5 +228,8 @@ OnExitHandler(*) {
 			DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", MENU_PTR)
 		}
 		prjw.Visible:=false
+		MDIGetHandles(PT_MAIN_HWND, &hedit, &hmix)
+		ResetStyles(hedit)
+		ResetStyles(hmix)
 	}
 }

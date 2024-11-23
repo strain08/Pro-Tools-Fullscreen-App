@@ -14,6 +14,12 @@ ToggleStyles(hWnd, thinBorder:=false){
 	}
 }
 
+ResetStyles(hWnd){
+	;WinSetStyle "-0x080000", hWnd
+	WinSetStyle "+0xC00000", hWnd ; WS_CAPTION
+	WinSetStyle "+0x040000", hWnd ; WS_SIZEBOX
+}
+
 IsWindowStyled(hWnd, thinBorder:=false){
 	if !WinExist(hWnd)
         return false
