@@ -6,15 +6,15 @@
 #Include .\include\mdiWindow.ahk
 #Include .\include\projectWindow.ahk
 #Include .\include\settings.ahk
+#Include .\include\ptfs_App_GUI.ahk
 
 /*
 -------------------------------------
 PT_FS_App - Make Pro Tools borderless
 https://github.com/strain08/Pro-Tools-Fullscreen-App
 
-Version: 0.9.10b
-
 */
+APP_VERSION:="0.9.12b"
 
 PT_WINDOW:="ahk_class DigiAppWndClass"
 
@@ -36,6 +36,8 @@ INI_FILE:=INI_PATH "PTFS_App.ini"
 ; Load settings from INI_FILE
 Settings:=ptfsSettings(INI_FILE)
 prjw:=projectWindow(Settings.PT_MONITOR)
+BuildTrayMenu(APP_VERSION, Settings)
+
 Init()
 ; Script exit callback
 OnExit(OnExitHandler,1)
