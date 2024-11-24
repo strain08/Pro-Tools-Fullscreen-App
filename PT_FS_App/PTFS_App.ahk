@@ -14,7 +14,7 @@ PT_FS_App - Make Pro Tools borderless
 https://github.com/strain08/Pro-Tools-Fullscreen-App
 
 */
-APP_VERSION:="0.9.12b"
+APP_VERSION:="1.0.0b"
 
 PT_WINDOW:="ahk_class DigiAppWndClass"
 
