@@ -1,13 +1,18 @@
 ## Pro Tools full screen App Window
-Removes borders from application window <br>
+Remove borders from application window! <br>
 
+![Screenshot 2024-11-24 200238](https://github.com/user-attachments/assets/50a21a6b-980e-49b3-b830-b42ec80bb901)
 #### Functionality
 
-- Keyboard shortcut to toggle ugly borders
-- Mouse middle-click to toggle menu visibility.
-- Keep main window borders visible and remove just the mix/edit window's blue vista border
-- Auto-fullscreen
-- Settings stored in PTFS_App.ini
+- Configurable keyboard shortcut to toggle ugly borders
+- Toggle menu visibility.
+- Optionaly keep main window borders visible and remove just the mix/edit window's blue vista border
+- Automatically toggle fullscreen when session is opened.
+- Display session name over menu or in main window caption
+- Settings stored in PTFS_App.ini, also configurable trough systray menu.
+
+#### Requirements
+- AutoHotkey v2
 
 #### Default shortcuts
 - `Ctrl + F12`: Toggle fullscreen mode<br>
@@ -23,9 +28,10 @@ Removes borders from application window <br>
 - `Auto_Fullscreen (0|1)` Keeps Pro Tools in fullscreen mode, until the keyboard shortcut is pressed; Default: 0
 
 #### Notes
-- When `ThinBorder=0` and menu is visible, moving regions in timeline is glitchy on certain resolutions. Either hide the menu with middle-mouse click, or switch to `ThinBorder=1` <br>
+- When `ThinBorder=0` and menu is visible, moving regions in timeline is glitchy on certain resolutions. Either hide the menu with middle-mouse click, or set `Keep_Main_Window=1 ThinBorder=1` <br>
 - Use `Keep_Main_Window=1` to be able to drag and resize the main window.
-
+- Custom window width with monitors of different resolutions might not work.
+  
 #### Todo
 - nothing planned for now
-- maybe a GUI for settings...
+
