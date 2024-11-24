@@ -4,13 +4,19 @@
 ShowSettingsGUI(appSettings){
     MyGui:=Gui()
     MyGui.Opt("+AlwaysOnTop -Disabled -SysMenu +Owner")
-    MyGui.Title:="Options"
+    MyGui.Title:="PTFS App"
 
     MyGui.AddText(,'General')
-
+    MyGui.AddCheckbox('xm+8 vAUTO_FULLSCREEN','Auto-fullscreen').Value:=appSettings.AUTO_FULLSCREEN
     MyGui.AddCheckbox('xm+8 vSHOW_PROJECT_NAME','Display project name').Value:=appSettings.SHOW_PROJECT_NAME
-    MyGui.AddCheckbox('vKEEP_MAIN_WINDOW','Keep main window').Value:=appSettings.KEEP_MAIN_WINDOW
-    MyGui.AddCheckbox('vTHIN_BORDER','Use thin border').Value:=appSettings.THIN_BORDER
+
+    cmwcb:=MyGui.AddCheckbox('vKEEP_MAIN_WINDOW','Keep main window')
+    cmwcb.Value:=appSettings.KEEP_MAIN_WINDOW
+    cmwcb.OnEvent('Click', KeepMainWindow_Click)
+
+    tbcb:=MyGui.AddCheckbox('vTHIN_BORDER','Use thin border')
+    tbcb.Value:=appSettings.THIN_BORDER
+    tbcb.Enabled:=appSettings.KEEP_MAIN_WINDOW
 
     MyGui.AddText('xm yp+20','Window size')
 
@@ -52,16 +58,19 @@ ShowSettingsGUI(appSettings){
         MyGui.Destroy()
         Reload()
     }
-
+    KeepMainWindow_Click(*){
+        tbcb.Enabled:=cmwcb.Value
+    }
     CustomWidth_Change(*){
         for k,v in cWidth
             v.Enabled:=cwcb.Value
     }
-    MyGui.Show('W150 H260')
+    MyGui.Show('W150 H280')
 }
 
 BuildTrayMenu(appVersion, appSettings){
     tray:=A_TrayMenu
+    appVersion:= "PTFS App " appVersion
     TraySetIcon(A_ScriptDir . '\res\ptfsApp.ico')
     tray.Delete()
     tray.Add(appVersion, dummy)

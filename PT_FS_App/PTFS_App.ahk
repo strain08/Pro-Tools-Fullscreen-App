@@ -219,7 +219,7 @@ MDITimer() {
 
 }
 
-; Restores borders and menu when quitting script
+; Restores borders, window caption and menu when quitting script
 OnExitHandler(*) {
 	if PT_MAIN_HWND:=WinExist(PT_WINDOW){
 		MainState(PT_MAIN_HWND, Settings, false)
@@ -228,8 +228,9 @@ OnExitHandler(*) {
 			DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", MENU_PTR)
 		}
 		prjw.Visible:=false
+		DisplayProjectInTitle(PT_MAIN_HWND,'')
 		MDIGetHandles(PT_MAIN_HWND, &hedit, &hmix)
-		ResetStyles(hedit)
-		ResetStyles(hmix)
+		ResetMDIStyle(hedit)
+		ResetMDIStyle(hmix)
 	}
 }
