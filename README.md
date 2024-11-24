@@ -1,4 +1,4 @@
-## Pro Tools full screen App Window
+## PTFS App
 Remove borders from application window! <br>
 
 ![Screenshot 2024-11-24 200238](https://github.com/user-attachments/assets/50a21a6b-980e-49b3-b830-b42ec80bb901)
