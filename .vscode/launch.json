@@ -1,0 +1,11 @@
+{
+    "configurations": [
+    {
+        "name": "AutoHotkey Debug",
+        "type": "autohotkey",
+        "request": "launch",
+        "program": "${file}",
+        "args": []
+    }
+    ]
+}

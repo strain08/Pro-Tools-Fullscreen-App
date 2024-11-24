@@ -3,3 +3,4 @@ Draft/**
 *.exe
 *.ini
 PT_FS_App/PTFS_App.ini
+.vscode/launch.json
