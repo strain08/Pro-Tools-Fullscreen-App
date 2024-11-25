@@ -1,3 +1,5 @@
+1.0.0b
+	- add: GUI for settings
 0.9.11b
 	- fix flickering project window when KEEP_MAIN_WINDOW=false
 0.9.10b
