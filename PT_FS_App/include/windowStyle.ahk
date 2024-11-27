@@ -15,23 +15,22 @@ ToggleStyles(hWnd, thinBorder:=false){
 }
 
 ResetMDIStyle(hWnd){
-	WinSetStyle "0x57CF0000", hWnd
+	try {
+		WinSetStyle "0x57CF0000", hWnd
+	}
 }
 
 IsWindowStyled(hWnd, thinBorder:=false){
 	if !WinExist(hWnd)
         return false
+	try {
+		if thinBorder
+			return !(WinGetStyle(hWnd) & 0xC00000)
 
-	if thinBorder{
-		if WinGetStyle(hWnd) & 0xC00000
-			return false
-		else
-			return true
+		return  !(WinGetStyle(hWnd) & 0x40000)
 	}
-	if WinGetStyle(hWnd) & 0x40000
+	catch{
 		return false
-	else
-		return true
+	}
 }
-
 
