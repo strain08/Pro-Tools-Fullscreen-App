@@ -1,8 +1,10 @@
 #Requires AutoHotkey v2.0.18+
 #SingleInstance Force
+#Include saveWindowPosition.ahk
 
 ShowSettingsGUI(appSettings){
     MyGui:=Gui()
+    pos:=saveWindowPosition(MyGui,INI_FILE,"OptionsWindow")
     MyGui.Opt("+AlwaysOnTop -Disabled -SysMenu +Owner")
     MyGui.Title:="PTFS App"
 
@@ -45,10 +47,12 @@ ShowSettingsGUI(appSettings){
     MyGui.AddButton('yp hp wp','Cancel').OnEvent('Click', Cancel_Click)
 
     Cancel_Click(*){
+        pos.SavePosition()
         MyGui.Destroy()
     }
 
     Ok_Click(*){
+        pos.SavePosition()
         result:=MyGui.Submit(true)
         for name,value in result.OwnProps() {
             value:=StrReplace(value,'(P)')
@@ -65,7 +69,19 @@ ShowSettingsGUI(appSettings){
         for k,v in cWidth
             v.Enabled:=cwcb.Value
     }
-    MyGui.Show('W150 H280')
+
+    pos.LoadPosition()
+    if pos.X != -1 || pos.Y != -1
+        MyGui.Show( 'X' pos.X ' Y' pos.Y ' W150 H280')
+    else
+        MyGui.Show( 'W150 H280')
+
+    BottomRightPosition(W, H, &PosX, &PosY){
+        mon:=MonitorGetPrimary()
+        MonitorGetWorkArea(mon, &Left, &Top, &Right, &Bottom)
+        PosX:= Right - W - 50
+        PosY:= Bottom - H - 50
+    }
 }
 
 BuildTrayMenu(appVersion, appSettings){
