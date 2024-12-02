@@ -14,7 +14,7 @@ PT_FS_App - Make Pro Tools borderless
 https://github.com/strain08/Pro-Tools-Fullscreen-App
 
 */
-APP_VERSION:="1.0.0b"
+APP_VERSION:="1.1.0b"
 
 PT_WINDOW:="ahk_class DigiAppWndClass"
 
@@ -67,27 +67,33 @@ Init() {
 		WindowSizeChanged(PT_MAIN_HWND)
 	}
 	; start monitoring for pro tools window
-	if Settings.AUTO_FULLSCREEN {
-		SetTimer AutoFullscreen, 1000
-	}
+	SetTimer AutoFullscreen, 1000
+
 }
 
 ; Toggles fullscreen mode if AUTO_FULLSCREEN = true
 ; When Pro Tools exits, clears the menu pointer
 AutoFullscreen() {
-	global MENU_PTR
+	global MENU_PTR, prjw
 
 	PT_MAIN_HWND:=WinWait(PT_WINDOW)
+	; code below executes after PT has been opened
+	prjw.SetOwner(PT_MAIN_HWND)
 	MDIGetHandles(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
 
 	if !edit_hwnd || !mix_hwnd
 		return
-
-	SetPTFullscreen(PT_MAIN_HWND, Settings, true)
-	MenuSelect(PT_MAIN_HWND, "", "Window", "Edit")
+	; code below executes after a session has been opened
+	if Settings.AUTO_FULLSCREEN {
+		SetPTFullscreen(PT_MAIN_HWND, Settings, true)
+		MenuSelect(PT_MAIN_HWND, "", "Window", "Edit")
+	}
 	WinWaitClose(PT_WINDOW)
-
+	; code below executes after PT has been closed
+	prjw.Visible:=false
+	prjw.ResetOwner()
 	MENU_PTR:=0
+
 }
 
 ; Toggle pt and child windows borders.
@@ -210,25 +216,26 @@ MDITimer() {
 		return
 	}
 	; main window styled , menu visible, window active => show project name
-	if IsWindowStyled(PT_MAIN_HWND) && 	DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0 &&	WinActive(PT_WINDOW)
+	if IsWindowStyled(PT_MAIN_HWND) && 	DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0 ; &&	WinActive(PT_WINDOW)
 		prjw.Visible:=true
 
 	; window inactive => hide project name
-	if !WinActive(PT_WINDOW)
-		prjw.Visible:=false
+	;if !WinActive(PT_WINDOW)
+;	;prjw.Visible:=false
 
 }
 
 ; Restores borders, window caption and menu when quitting script
 OnExitHandler(*) {
 	if PT_MAIN_HWND:=WinExist(PT_WINDOW){
+		prjw.Visible:=false
+		prjw.ResetOwner()
+		DisplayProjectInTitle(PT_MAIN_HWND,'')
 		MainState(PT_MAIN_HWND, Settings, false)
 		MDISetState(PT_MAIN_HWND, Settings, false)
 		if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) == 0 && MENU_PTR != 0 {
 			DllCall("SetMenu", "Ptr", PT_MAIN_HWND, "Ptr", MENU_PTR)
 		}
-		prjw.Visible:=false
-		DisplayProjectInTitle(PT_MAIN_HWND,'')
 		MDIGetHandles(PT_MAIN_HWND, &hedit, &hmix)
 		ResetMDIStyle(hedit)
 		ResetMDIStyle(hmix)

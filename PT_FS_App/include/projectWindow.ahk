@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#Include windowOwner.ahk
 
 class projectWindow{
     ProjectWindowID := Gui()
@@ -12,11 +13,22 @@ class projectWindow{
         ;this.ProjectWindowID.SetFont("s10 c38D177 w100")
         this.ProjectWindowID.SetFont("s9 cBlack w700", "Segoe UI")
         this.TextID:= this.ProjectWindowID.AddText("x0 y2 w1200 h" this.boxHeight " Center")
-        this.ProjectWindowID.Show("h-" this.boxHeight " NoActivate")
-        WinMove(Right - this.boxWidth, Top, this.boxWidth, this.boxHeight, this.ProjectWindowID)
         WinSetTransColor("White", this.ProjectWindowID)
-        this.ProjectWindowID.Opt("+AlwaysOnTop -Caption +ToolWindow")
+        this.ProjectWindowID.Show("Hide h-" this.boxHeight " NoActivate")
+        ; reset window owner
+       ; WinSetOwner(this.ProjectWindowID.Hwnd)
+        WinMove(Right - this.boxWidth, Top, this.boxWidth, this.boxHeight, this.ProjectWindowID)
+
+        this.ProjectWindowID.Opt("-AlwaysOnTop -Caption +ToolWindow")
         this.ProjectWindowID.Hide
+    }
+
+    SetOwner(HWND){
+        WinSetOwner(this.ProjectWindowID.Hwnd, HWND)
+    }
+
+    ResetOwner(){
+        WinSetOwner(this.ProjectWindowID.Hwnd)
     }
 
     ProjectName {
@@ -29,14 +41,15 @@ class projectWindow{
                 if Value{
                     ; only show if not visible, otherwise it will hide the window
                     if !ControlGetVisible(this.ProjectWindowID){
-                        this.ProjectWindowID.Show("NoActivate")
-                        this._visible:=Value
+                            this.ProjectWindowID.Show("NoActivate")
+                            this._visible:=true
                     }
                 }
                 else {
                     try {
+                        ;WinSetOwner(this.ProjectWindowID.Hwnd)
                         this.ProjectWindowID.Hide
-                        this._visible:=Value
+                        this._visible:=false
                     }
                 }
 
