@@ -10,8 +10,8 @@ class projectWindow{
         ;this.ProjectWindowID.BackColor:="333333"
         this.ProjectWindowID.BackColor:= "White"
         ;this.ProjectWindowID.SetFont("s10 c38D177 w100")
-        this.ProjectWindowID.SetFont("s10 cBlack w200", "Segoe UI")
-        this.TextID:= this.ProjectWindowID.AddText("x0 y0 w1200 h" this.boxHeight " Center")
+        this.ProjectWindowID.SetFont("s9 cBlack w700", "Segoe UI")
+        this.TextID:= this.ProjectWindowID.AddText("x0 y2 w1200 h" this.boxHeight " Center")
         this.ProjectWindowID.Show("h-" this.boxHeight " NoActivate")
         WinMove(Right - this.boxWidth, Top, this.boxWidth, this.boxHeight, this.ProjectWindowID)
         WinSetTransColor("White", this.ProjectWindowID)
