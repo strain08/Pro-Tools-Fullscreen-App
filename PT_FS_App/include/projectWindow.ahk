@@ -1,34 +1,35 @@
 #Requires AutoHotkey v2.0
 #Include windowOwner.ahk
 
-class projectWindow{
-    ProjectWindowID := Gui()
+class SessionNameWindow{
+    MyGui := Gui()
     boxWidth:=1350
     boxHeight:=20 ; menu height
     _visible:=false
     __New(MonitorNumber) {
         MonitorGetWorkArea(MonitorNumber, &Left, &Top, &Right, &Bottom)
-        ;this.ProjectWindowID.BackColor:="333333"
-        this.ProjectWindowID.BackColor:= "White"
-        ;this.ProjectWindowID.SetFont("s10 c38D177 w100")
-        this.ProjectWindowID.SetFont("s9 cBlack w700", "Segoe UI")
-        this.TextID:= this.ProjectWindowID.AddText("x0 y2 w1200 h" this.boxHeight " Center")
-        WinSetTransColor("White", this.ProjectWindowID)
-        this.ProjectWindowID.Show("Hide h-" this.boxHeight " NoActivate")
+        ;this.MyGui.BackColor:="333333"
+        this.MyGui.BackColor:= "White"
+        ;this.MyGui.SetFont("s10 c38D177 w100")
+        this.MyGui.SetFont("s9 cBlack w700", "Segoe UI")
+        this.TextID:= this.MyGui.AddText("x0 y2 w1200 h" this.boxHeight " Center")
+        WinSetTransColor("White", this.MyGui)
+        this.MyGui.Show("Hide h-" this.boxHeight " NoActivate")
         ; reset window owner
-       ; WinSetOwner(this.ProjectWindowID.Hwnd)
-        WinMove(Right - this.boxWidth, Top, this.boxWidth, this.boxHeight, this.ProjectWindowID)
+       ; WinSetOwner(this.MyGui.Hwnd)
+        WinMove(Right - this.boxWidth, Top, this.boxWidth, this.boxHeight, this.MyGui)
 
-        this.ProjectWindowID.Opt("-AlwaysOnTop -Caption +ToolWindow")
-        this.ProjectWindowID.Hide
+        this.MyGui.Opt("-AlwaysOnTop -Caption +ToolWindow")
+        this.MyGui.Hide
     }
 
     SetOwner(HWND){
-        WinSetOwner(this.ProjectWindowID.Hwnd, HWND)
+        ;WinSetOwner(this.MyGui.Hwnd, HWND)
+
     }
 
     ResetOwner(){
-        WinSetOwner(this.ProjectWindowID.Hwnd)
+        ;WinSetOwner(this.MyGui.Hwnd)
     }
 
     ProjectName {
@@ -40,15 +41,15 @@ class projectWindow{
             if this._visible != Value{
                 if Value{
                     ; only show if not visible, otherwise it will hide the window
-                    if !ControlGetVisible(this.ProjectWindowID){
-                            this.ProjectWindowID.Show("NoActivate")
+                    if !ControlGetVisible(this.MyGui){
+                            this.MyGui.Show("NoActivate")
                             this._visible:=true
                     }
                 }
                 else {
                     try {
-                        ;WinSetOwner(this.ProjectWindowID.Hwnd)
-                        this.ProjectWindowID.Hide
+                        ;WinSetOwner(this.MyGui.Hwnd)
+                        this.MyGui.Hide
                         this._visible:=false
                     }
                 }

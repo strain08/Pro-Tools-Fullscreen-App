@@ -37,7 +37,7 @@ INI_FILE:=INI_PATH "PTFS_App.ini"
 ; Load settings from INI_FILE
 Settings:=ptfsSettings(INI_FILE)
 ; Window that overlays project name on menu
-prjw:=projectWindow(Settings.PT_MONITOR)
+prjw:=SessionNameWindow(Settings.PT_MONITOR)
 ; Registry startup key manager
 rs:=RegStartup(APP_NAME, A_ScriptFullPath)
 ; Tray menu
