@@ -36,22 +36,22 @@ INI_FILE:=INI_PATH "PTFS_App.ini"
 ; << Configure
 
 ; >> INIT
-; Load settings from INI_FILE
-Settings:=AppSettings(INI_FILE)
-; Window that overlays project name on menu
-prjw:=SessionNameWindow(Settings.PT_MONITOR)
-; Registry startup key manager
-rs:=RegStartup(APP_NAME, A_ScriptFullPath)
-; Tray menu
-BuildTrayMenu(APP_VERSION, Settings)
-
 Init()
 ; Script exit callback
 OnExit(OnExitHandler,1)
 ; << INIT
 
 Init() {
-	global MENU_PTR, prjw
+	global MENU_PTR, prjw, Settings, rs
+
+	; Load settings from INI_FILE
+	Settings:=AppSettings(INI_FILE)
+	; Window that overlays project name on menu
+	prjw:=SessionNameWindow(Settings.PT_MONITOR)
+	; Registry startup key manager
+	rs:=RegStartup(APP_NAME, A_ScriptFullPath)
+	; Tray menu
+	BuildTrayMenu(APP_VERSION, Settings)
 
 	MENU_PTR:=0
 
