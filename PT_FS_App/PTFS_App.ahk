@@ -12,8 +12,10 @@ APP_NAME:="PTFS App"
 #Include .\include\windowStyle.ahk
 #Include .\include\mainWindow.ahk
 #Include .\include\mdiWindow.ahk
-#Include .\include\projectWindow.ahk
-#Include .\include\settings.ahk
+#Include .\include\class_RegStartup.ahk
+#Include .\include\class_AppSettings.ahk
+#Include .\include\class_SaveWindowPosition.ahk
+#Include .\include\class_SessionNameWindow.ahk
 #Include .\include\ptfs_App_GUI.ahk
 
 
@@ -35,7 +37,7 @@ INI_FILE:=INI_PATH "PTFS_App.ini"
 
 ; >> INIT
 ; Load settings from INI_FILE
-Settings:=ptfsSettings(INI_FILE)
+Settings:=AppSettings(INI_FILE)
 ; Window that overlays project name on menu
 prjw:=SessionNameWindow(Settings.PT_MONITOR)
 ; Registry startup key manager

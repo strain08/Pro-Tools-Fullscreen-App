@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 
-class saveWindowPosition{
+class SaveWindowPosition{
     X:=0
     Y:=0
     __New(MyGui, INI_FILE, windowName) {

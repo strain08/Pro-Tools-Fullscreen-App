@@ -1,13 +1,9 @@
 #Requires AutoHotkey v2.0.18+
 #SingleInstance Force
-#Include saveWindowPosition.ahk
-#Include class_RegStartup.ahk
 
 ShowSettingsGUI(appSettings){
     MyGui:=Gui()
-
-
-    windowPosition:=saveWindowPosition(MyGui,INI_FILE,"OptionsWindow")
+    windowPosition:=SaveWindowPosition(MyGui,INI_FILE,"OptionsWindow")
     MyGui.Opt("+AlwaysOnTop -Disabled -SysMenu +Owner")
     MyGui.Title:="PTFS App"
 

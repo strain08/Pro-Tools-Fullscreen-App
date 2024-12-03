@@ -67,8 +67,8 @@ DisplayProjectInTitle(PT_MAIN_HWND, name) {
 GetProjectName(PT_MAIN_HWND) {
 
 	try {
-		pt_edit_hWnd:=MDIGetWindowHandle(PT_MAIN_HWND, "Edit:")
-		name:=LTrim(ControlGetText(pt_edit_hWnd),"Edit: ")
+		pt_edit_hWnd:= MDIGetWindowHandle(PT_MAIN_HWND, "Edit:")
+		name:= LTrim(ControlGetText(pt_edit_hWnd),"Edit: ")
 		return name
 	}
 	catch

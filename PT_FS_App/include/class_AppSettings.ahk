@@ -37,7 +37,7 @@ ptfsSettingsMap["CUSTOM_WIDTH"]:=['WindowSize', 'Custom_Width', false]
 ; Pro Tools Window width when CUSTOM_WIDTH = true
 ptfsSettingsMap["INI_WINDOW_WIDTH"]:=['WindowSize', 'WindowWidth', 0]
 
-class ptfsSettings{
+class AppSettings{
 
     __New(INI_FILE) {
         this.INI_FILE:=INI_FILE
