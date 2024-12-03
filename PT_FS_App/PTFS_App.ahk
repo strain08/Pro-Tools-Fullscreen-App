@@ -96,7 +96,7 @@ AutoFullscreen() {
 	WinWaitClose(PT_WINDOW)
 	; code below executes after PT has been closed
 	prjw.Visible:=false
-	prjw.ResetOwner()
+	;prjw.ResetOwner()
 	MENU_PTR:=0
 
 }
@@ -234,7 +234,6 @@ MDITimer() {
 OnExitHandler(*) {
 	if PT_MAIN_HWND:=WinExist(PT_WINDOW){
 		prjw.Visible:=false
-		prjw.ResetOwner()
 		DisplayProjectInTitle(PT_MAIN_HWND,'')
 		MainState(PT_MAIN_HWND, Settings, false)
 		MDISetState(PT_MAIN_HWND, Settings, false)

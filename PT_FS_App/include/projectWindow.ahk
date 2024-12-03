@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2.0
-#Include windowOwner.ahk
 
+; Displays the open session's name on top of menu bar
+; in a window owned by Pro Tools main window
 class SessionNameWindow{
     MyGui := Gui()
     boxWidth:=1350
@@ -15,21 +16,15 @@ class SessionNameWindow{
         this.TextID:= this.MyGui.AddText("x0 y2 w1200 h" this.boxHeight " Center")
         WinSetTransColor("White", this.MyGui)
         this.MyGui.Show("Hide h-" this.boxHeight " NoActivate")
-        ; reset window owner
-       ; WinSetOwner(this.MyGui.Hwnd)
         WinMove(Right - this.boxWidth, Top, this.boxWidth, this.boxHeight, this.MyGui)
-
-        this.MyGui.Opt("-AlwaysOnTop -Caption +ToolWindow")
+        this.MyGui.Opt("-AlwaysOnTop -Caption -SysMenu +Owner")
         this.MyGui.Hide
     }
 
     SetOwner(HWND){
-        ;WinSetOwner(this.MyGui.Hwnd, HWND)
-
-    }
-
-    ResetOwner(){
-        ;WinSetOwner(this.MyGui.Hwnd)
+        try {
+        this.MyGui.Opt("+Owner" HWND)
+        }
     }
 
     ProjectName {

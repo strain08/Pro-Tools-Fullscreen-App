@@ -91,8 +91,10 @@ BuildTrayMenu(appVersion, appSettings){
     global rs
     tray:=A_TrayMenu
     appVersion:= "PTFS App " appVersion
+
     TraySetIcon(A_ScriptDir . '\res\ptfsApp.ico')
     tray.Delete()
+
     tray.Add(appVersion, dummy)
     tray.Add("Run at startup", RunAtStartup_Click)
     if rs.IsEnabled(){
