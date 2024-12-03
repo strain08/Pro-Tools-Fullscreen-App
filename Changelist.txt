@@ -1,3 +1,8 @@
+1.2.0b
+	- add: Tray option to run at startup
+	- impr: no session window flicker on start
+1.1.0b
+	- impr: use window owner to keep session name visible when not in focus
 1.0.0b
 	- add: GUI for settings
 0.9.11b

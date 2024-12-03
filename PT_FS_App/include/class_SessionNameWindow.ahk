@@ -8,17 +8,15 @@ class SessionNameWindow{
     boxHeight:=20 ; menu height
     _visible:=false
     __New(MonitorNumber) {
-        MonitorGetWorkArea(MonitorNumber, &Left, &Top, &Right, &Bottom)
+        this._monitorNumber:=MonitorNumber
+
         ;this.MyGui.BackColor:="333333"
-        this.MyGui.BackColor:= "White"
         ;this.MyGui.SetFont("s10 c38D177 w100")
+        this.MyGui.BackColor:= "White"
+        WinSetTransColor("White", this.MyGui)
         this.MyGui.SetFont("s9 cBlack w700", "Segoe UI")
         this.TextID:= this.MyGui.AddText("x0 y2 w1200 h" this.boxHeight " Center")
-        WinSetTransColor("White", this.MyGui)
-        this.MyGui.Show("Hide h-" this.boxHeight " NoActivate")
-        WinMove(Right - this.boxWidth, Top, this.boxWidth, this.boxHeight, this.MyGui)
         this.MyGui.Opt("-AlwaysOnTop -Caption -SysMenu +Owner")
-        this.MyGui.Hide
     }
 
     SetOwner(HWND){
@@ -37,16 +35,16 @@ class SessionNameWindow{
                 if Value{
                     ; only show if not visible, otherwise it will hide the window
                     if !ControlGetVisible(this.MyGui){
-                            this.MyGui.Show("NoActivate")
+                            MonitorGetWorkArea(this._monitorNumber, &Left, &Top, &Right, &Bottom)
+                            this.MyGui.Show("X" Right - this.boxWidth "Y" Top "W" this.boxWidth "H" this.boxHeight " NoActivate" )
                             this._visible:=true
                     }
                 }
                 else {
                     try {
-                        ;WinSetOwner(this.MyGui.Hwnd)
                         this.MyGui.Hide
-                        this._visible:=false
                     }
+                    this._visible:=false
                 }
 
             }
