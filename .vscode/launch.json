@@ -1,11 +1,18 @@
 {
     "configurations": [
-    {
-        "name": "AutoHotkey Debug",
-        "type": "autohotkey",
-        "request": "launch",
-        "program": "${file}",
-        "args": []
-    }
+        {
+            "name": "AutoHotkey Debug Current File",
+            "type": "autohotkey",
+            "request": "launch",
+            "program": "${file}",
+            "args": []
+        },
+        {
+            "name": "AutoHotkey Debug Main",
+            "type": "autohotkey",
+            "request": "launch",
+            "program": "${workspaceFolder}/PT_FS_App/PTFS_App.ahk",
+            "args": []
+        }
     ]
 }
