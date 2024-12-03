@@ -1,9 +1,12 @@
 #Requires AutoHotkey v2.0.18+
 #SingleInstance Force
 #Include saveWindowPosition.ahk
+#Include class_RegStartup.ahk
 
 ShowSettingsGUI(appSettings){
     MyGui:=Gui()
+
+
     pos:=saveWindowPosition(MyGui,INI_FILE,"OptionsWindow")
     MyGui.Opt("+AlwaysOnTop -Disabled -SysMenu +Owner")
     MyGui.Title:="PTFS App"
@@ -85,12 +88,18 @@ ShowSettingsGUI(appSettings){
 }
 
 BuildTrayMenu(appVersion, appSettings){
+    global rs
     tray:=A_TrayMenu
     appVersion:= "PTFS App " appVersion
     TraySetIcon(A_ScriptDir . '\res\ptfsApp.ico')
     tray.Delete()
     tray.Add(appVersion, dummy)
-    tray.Add("Options", OptionsMenu_Click)
+    tray.Add("Run at startup", RunAtStartup_Click)
+    if rs.IsEnabled(){
+        tray.Check("Run at startup")
+    }
+    tray.Add("Options...", OptionsMenu_Click,"")
+    tray.Add()
     tray.Add("Exit", ExitMenu_Click)
     tray.Disable(appVersion)
 
@@ -100,6 +109,15 @@ BuildTrayMenu(appVersion, appSettings){
 
     dummy(*){
 
+    }
+    RunAtStartup_Click(*){
+        if rs.IsEnabled(){
+            rs.Disable()
+            tray.Uncheck("Run at startup")
+            return
+        }
+        rs.Enable()
+        tray.Check("Run at startup")
     }
 
     OptionsMenu_Click(*){

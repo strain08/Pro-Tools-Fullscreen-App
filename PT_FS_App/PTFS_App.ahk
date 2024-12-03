@@ -1,5 +1,13 @@
 #Requires AutoHotkey v2
 #SingleInstance Force
+/*
+-------------------------------------
+PTFS App - Make Pro Tools borderless
+https://github.com/strain08/Pro-Tools-Fullscreen-App
+
+*/
+APP_VERSION:="1.2.0b"
+APP_NAME:="PTFS App"
 
 #Include .\include\windowStyle.ahk
 #Include .\include\mainWindow.ahk
@@ -8,13 +16,6 @@
 #Include .\include\settings.ahk
 #Include .\include\ptfs_App_GUI.ahk
 
-/*
--------------------------------------
-PT_FS_App - Make Pro Tools borderless
-https://github.com/strain08/Pro-Tools-Fullscreen-App
-
-*/
-APP_VERSION:="1.1.0b"
 
 PT_WINDOW:="ahk_class DigiAppWndClass"
 
@@ -35,7 +36,11 @@ INI_FILE:=INI_PATH "PTFS_App.ini"
 ; >> INIT
 ; Load settings from INI_FILE
 Settings:=ptfsSettings(INI_FILE)
+; Window that overlays project name on menu
 prjw:=projectWindow(Settings.PT_MONITOR)
+; Registry startup key manager
+rs:=RegStartup(APP_NAME, A_ScriptFullPath)
+; Tray menu
 BuildTrayMenu(APP_VERSION, Settings)
 
 Init()
