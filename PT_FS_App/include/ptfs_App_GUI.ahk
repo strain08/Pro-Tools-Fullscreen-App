@@ -26,14 +26,6 @@ ShowSettingsGUI(appSettings){
     cbUseCustomWidth.Value:=appSettings.CUSTOM_WIDTH
     mapCustomWidthOptions:=Map() ; controls enabled when cbUseCustomWidth.Value = true
 
-    mapCustomWidthOptions[1]:= MyGui.AddText('yp+20 xp','Monitor:')
-    monitors:=[]
-    loop MonitorGetCount(){
-        monitors.Push A_Index
-    }
-    mapCustomWidthOptions[2]:=MyGui.AddDDL("vcbx xp w50 vPT_MONITOR",monitors)
-    mapCustomWidthOptions[2].Choose(appSettings.PT_MONITOR)
-
     mapCustomWidthOptions[3]:=MyGui.AddText('','Custom width:')
 
     mapCustomWidthOptions[4]:=MyGui.AddEdit('xp w50 vINI_WINDOW_WIDTH','')

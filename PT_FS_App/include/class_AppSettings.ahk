@@ -26,10 +26,6 @@ ptfsSettingsMap["THIN_BORDER"]:=['General', 'Thin_Border', true]
 ; Default: false
 ptfsSettingsMap["AUTO_FULLSCREEN"]:=['General', 'Auto_Fullscreen', false]
 
-; Monitor to make Pro Tools full screen on.
-; Default: MonitorGetPrimary()
-ptfsSettingsMap["PT_MONITOR"]:=['WindowSize', 'PT_Monitor', MonitorGetPrimary()]
-
 ; True: Read main window width from INI file.
 ; Default: False (Use PT_MONITOR width)
 ptfsSettingsMap["CUSTOM_WIDTH"]:=['WindowSize', 'Custom_Width', false]
