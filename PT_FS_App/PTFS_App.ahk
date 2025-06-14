@@ -6,7 +6,7 @@ PTFS App - Make Pro Tools borderless
 https://github.com/strain08/Pro-Tools-Fullscreen-App
 
 */
-APP_VERSION:="1.2.0b"
+APP_VERSION:="1.2.1"
 APP_NAME:="PTFS App"
 
 #Include .\include\windowStyle.ahk
@@ -46,8 +46,9 @@ Init() {
 
 	; Load settings from INI_FILE
 	Settings:=AppSettings(INI_FILE)
+
 	; Window that overlays project name on menu
-	prjw:=SessionNameWindow(Settings.PT_MONITOR)
+	prjw:=SessionNameWindow(MonitorGetPrimary())
 	; Registry startup key manager
 	rs:=RegStartup(APP_NAME, A_ScriptFullPath)
 	; Tray menu

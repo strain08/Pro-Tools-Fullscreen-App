@@ -20,7 +20,8 @@ ToggleMainWindow(PT_MAIN_HWND, Settings) {
     if !IsWindowStyled(PT_MAIN_HWND) {
 		; make window fulll screen
         ToggleStyles(PT_MAIN_HWND)
-		MonitorGetWorkArea(Settings.PT_MONITOR, &Left, &Top, &Right, &Bottom)
+		MonitorGetWorkArea(MonitorGetPrimary(), &Left, &Top, &Right, &Bottom)
+
         if Settings.CUSTOM_WIDTH{
 			WinRestore PT_MAIN_HWND
 			WinMove Left, Top, Settings.INI_WINDOW_WIDTH, Bottom - Top, PT_MAIN_HWND
