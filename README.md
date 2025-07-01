@@ -19,7 +19,6 @@ Remove borders from application window! <br>
 - `Mouse Middle-Click`: Toggle menu visibility when fullscreen<br>
 
 #### PTFS_App.ini Options
-- `PT_Monitor (number)` Monitor to make Pro Tools full screen on. Default: MonitorGetPrimary()
 - `Custom_Width (0|1)` Custom PT window width in pixels. Default: 0 (Use primary monitor width) ; 1: use `WindowWidth`
 - `WindowWidth (number)` Pro Tools window width used when `CustomWidth=1`
 - `Show_Project_Name (0|1)`: Show project name when window in focus. Default: 1
