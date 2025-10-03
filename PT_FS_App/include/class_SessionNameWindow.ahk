@@ -66,7 +66,9 @@ GetProjectName(PT_MAIN_HWND) {
 
 	try {
 		pt_edit_hWnd:= MDIGetWindowHandle(PT_MAIN_HWND, "Edit:")
-		name:= LTrim(ControlGetText(pt_edit_hWnd),"Edit: ")
+        control_text:= ControlGetText(pt_edit_hWnd)
+        ; remove leading "Edit: ", workaround weird LTrim bug that removes letter "E" from beginning of project name
+		name:= SubStr(control_text, 7)
 		return name
 	}
 	catch
