@@ -31,6 +31,7 @@ INI_FILE:=INI_PATH "PTFS_App.ini"
 	^F12:: TogglePTFullScreen(WinExist(PT_WINDOW))
 	; Toggle menu, only when KEEP_MAIN_WINDOW:= false
 	MButton:: ToggleMenu(WinActive(PT_WINDOW))
+	#Include CustomShortcuts.ahk
 
 #HotIf
 ; << Configure
