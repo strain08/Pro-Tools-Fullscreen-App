@@ -3,14 +3,14 @@
 ; Displays the open session's name on top of menu bar
 ; in a window owned by Pro Tools main window
 class SessionNameWindow{
-    MyGui := Gui()
+    MyGui:=0
     boxWidth:=1350
     boxHeight:=20 ; menu height
     _visible:=false
     _owner:=0
     __New(MonitorNumber) {
         this._monitorNumber:=MonitorNumber
-
+        this.MyGui := Gui()
         ;this.MyGui.BackColor:="333333"
         ;this.MyGui.SetFont("s10 c38D177 w100")
         this.MyGui.BackColor:= "White"

@@ -110,9 +110,12 @@ AutoFullscreen() {
 	WinWaitClose(PT_WINDOW)
 	; code below executes after PT has been closed
 	prjw.Visible:=false
-	;prjw.ResetOwner()
 	MENU_PTR:=0
 	running:=false
+	; Recreate prjw for the next PT session
+	; Windows does not reliably allow changing the owner of a window that has
+	; already been shown, so resetting the owner in-place is not sufficient.
+	prjw := SessionNameWindow(MonitorGetPrimary())
 
 }
 
