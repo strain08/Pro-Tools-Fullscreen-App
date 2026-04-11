@@ -6,7 +6,7 @@ PTFS App - Make Pro Tools borderless
 https://github.com/strain08/Pro-Tools-Fullscreen-App
 
 */
-APP_VERSION:="1.2.1"
+APP_VERSION:="1.2.2"
 APP_NAME:="PTFS App"
 
 #Include .\include\windowStyle.ahk
