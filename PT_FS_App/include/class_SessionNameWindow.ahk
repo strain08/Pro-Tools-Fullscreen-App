@@ -7,6 +7,7 @@ class SessionNameWindow{
     boxWidth:=1350
     boxHeight:=20 ; menu height
     _visible:=false
+    _owner:=0
     __New(MonitorNumber) {
         this._monitorNumber:=MonitorNumber
 
@@ -20,9 +21,13 @@ class SessionNameWindow{
     }
 
     SetOwner(HWND){
+        if (this._owner == HWND || HWND == 0)
+            return
         try {
         this.MyGui.Opt("+Owner" HWND)
+        this._owner:=HWND
         }
+
     }
 
     ProjectName {
