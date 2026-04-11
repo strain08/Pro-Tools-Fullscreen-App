@@ -31,22 +31,18 @@ class SessionNameWindow{
 
     Visible{
         set{
-            if this._visible != Value{
-                if Value{
-                    ; only show if not visible, otherwise it will hide the window
-                    if !ControlGetVisible(this.MyGui){
-                            MonitorGetWorkArea(this._monitorNumber, &Left, &Top, &Right, &Bottom)
-                            this.MyGui.Show("X" Right - this.boxWidth "Y" Top "W" this.boxWidth "H" this.boxHeight " NoActivate" )
-                            this._visible:=true
-                    }
+            if Value{
+                ; Always re-show: the window may have been hidden externally (e.g. by Windows
+                ; when the owner window is resized to fullscreen), causing _visible to be stale.
+                MonitorGetWorkArea(this._monitorNumber, &Left, &Top, &Right, &Bottom)
+                this.MyGui.Show("X" Right - this.boxWidth "Y" Top "W" this.boxWidth "H" this.boxHeight " NoActivate" )
+                this._visible:=true
+            }
+            else if this._visible {
+                try {
+                    this.MyGui.Hide
                 }
-                else {
-                    try {
-                        this.MyGui.Hide
-                    }
-                    this._visible:=false
-                }
-
+                this._visible:=false
             }
         }
     }
