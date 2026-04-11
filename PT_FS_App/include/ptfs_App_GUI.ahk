@@ -46,7 +46,6 @@ ShowSettingsGUI(appSettings){
         windowPosition.SavePosition()
         result:=MyGui.Submit(true)
         for name,value in result.OwnProps() {
-            value:=StrReplace(value,'(P)')
             appSettings.%name%:=value
         }
         appSettings.SaveSettings()
@@ -67,12 +66,6 @@ ShowSettingsGUI(appSettings){
     else
         MyGui.Show( 'W150 H280')
 
-    BottomRightPosition(W, H, &PosX, &PosY){
-        mon:=MonitorGetPrimary()
-        MonitorGetWorkArea(mon, &Left, &Top, &Right, &Bottom)
-        PosX:= Right - W - 50
-        PosY:= Bottom - H - 50
-    }
 }
 
 BuildTrayMenu(appVersion, appSettings){
