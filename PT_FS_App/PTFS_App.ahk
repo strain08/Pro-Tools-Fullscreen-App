@@ -224,10 +224,11 @@ MDITimer() {
 		return
 
 	; update project name text
-	prjw.ProjectName:= GetProjectName(PT_MAIN_HWND)
+	projectName:= GetProjectName(PT_MAIN_HWND)
+	prjw.ProjectName:= projectName
 
 	if Settings.KEEP_MAIN_WINDOW	{
-		DisplayProjectInTitle(PT_MAIN_HWND, GetProjectName(PT_MAIN_HWND) )
+		DisplayProjectInTitle(PT_MAIN_HWND, projectName)
 		if WindowSizeChanged(PT_MAIN_HWND) {
 			MDIGetHandles(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
 			MDIMaximizeWindow(PT_MAIN_HWND, mix_hwnd)
