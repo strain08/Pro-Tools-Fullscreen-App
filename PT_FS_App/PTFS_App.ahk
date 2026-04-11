@@ -84,14 +84,24 @@ Init() {
 ; When Pro Tools exits, clears the menu pointer
 AutoFullscreen() {
 	global MENU_PTR, prjw
+	static running:=false
+
+	; Prevent concurrent execution: WinWaitClose makes this thread interruptible,
+	; so without a guard the 1-second timer spawns new threads that each call
+	; MenuSelect("Window","Edit") every second while PT is open.
+	if running
+		return
+	running:=true
 
 	PT_MAIN_HWND:=WinWait(PT_WINDOW)
 	; code below executes after PT has been opened
 	prjw.SetOwner(PT_MAIN_HWND)
 	MDIGetHandles(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
 
-	if !edit_hwnd || !mix_hwnd
+	if !edit_hwnd || !mix_hwnd {
+		running:=false
 		return
+	}
 	; code below executes after a session has been opened
 	if Settings.AUTO_FULLSCREEN {
 		SetPTFullscreen(PT_MAIN_HWND, Settings, true)
@@ -102,6 +112,7 @@ AutoFullscreen() {
 	prjw.Visible:=false
 	;prjw.ResetOwner()
 	MENU_PTR:=0
+	running:=false
 
 }
 
