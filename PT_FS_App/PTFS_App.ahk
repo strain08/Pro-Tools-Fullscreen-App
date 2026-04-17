@@ -6,7 +6,7 @@ PTFS App - Make Pro Tools borderless
 https://github.com/strain08/Pro-Tools-Fullscreen-App
 
 */
-APP_VERSION:="1.2.2"
+APP_VERSION:="1.2.3"
 APP_NAME:="PTFS App"
 
 #Include .\include\windowStyle.ahk
@@ -69,7 +69,8 @@ Init() {
 			MENU_PTR := 0
 		}
 		; if full screen start window timer
-		if IsWindowStyled(MDIGetWindowHandle(PT_MAIN_HWND, "Edit:"), Settings.KEEP_MAIN_WINDOW && Settings.THIN_BORDER) {
+		isStyled := Settings.KEEP_MAIN_WINDOW ? IsWindowStyled(MDIGetWindowHandle(PT_MAIN_HWND, "Edit:"), Settings.THIN_BORDER) : IsWindowStyled(PT_MAIN_HWND)
+		if isStyled {
 			SetTimer MDITimer, 250
 		}
 		; store init window size
@@ -106,6 +107,9 @@ AutoFullscreen() {
 	if Settings.AUTO_FULLSCREEN {
 		SetPTFullscreen(PT_MAIN_HWND, Settings, true)
 		MenuSelect(PT_MAIN_HWND, "", "Window", "Edit")
+		; Ensure timer is running if we are in full screen mode
+		if IsWindowStyled(PT_MAIN_HWND) || IsWindowStyled(edit_hwnd, Settings.KEEP_MAIN_WINDOW && Settings.THIN_BORDER)
+			SetTimer MDITimer, 250
 	}
 	WinWaitClose(PT_WINDOW)
 	; code below executes after PT has been closed
@@ -223,8 +227,11 @@ MDITimer() {
 
 	MDISetState(PT_MAIN_HWND, Settings, true)
 
-	if !Settings.SHOW_PROJECT_NAME
+	if !Settings.SHOW_PROJECT_NAME {
+		if prjw.Visible
+			prjw.Visible := false
 		return
+	}
 
 	; update project name text
 	projectName:= GetProjectName(PT_MAIN_HWND)
@@ -237,15 +244,13 @@ MDITimer() {
 			MDIMaximizeWindow(PT_MAIN_HWND, mix_hwnd)
 			MDIMaximizeWindow(PT_MAIN_HWND, edit_hwnd)
 		}
+		if prjw.Visible
+			prjw.Visible := false
 		return
 	}
-	; main window styled , menu visible, window active => show project name
-	if IsWindowStyled(PT_MAIN_HWND) && 	DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0 ; &&	WinActive(PT_WINDOW)
-		prjw.Visible:=true
 
-	; window inactive => hide project name
-	;if !WinActive(PT_WINDOW)
-;	;prjw.Visible:=false
+	; main window styled , menu visible => show project name
+	prjw.Visible := IsWindowStyled(PT_MAIN_HWND) && DllCall("GetMenu", "Ptr", PT_MAIN_HWND) != 0
 
 }
 

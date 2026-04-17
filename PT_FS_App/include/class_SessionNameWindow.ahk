@@ -24,10 +24,9 @@ class SessionNameWindow{
         if (this._owner == HWND || HWND == 0)
             return
         try {
-        this.MyGui.Opt("+Owner" HWND)
-        this._owner:=HWND
+            this.MyGui.Opt("+Owner" HWND)
+            this._owner:=HWND
         }
-
     }
 
     ProjectName {
@@ -35,17 +34,19 @@ class SessionNameWindow{
     }
 
     Visible{
+        get => this._visible
         set{
             if Value{
-                ; Always re-show: the window may have been hidden externally (e.g. by Windows
-                ; when the owner window is resized to fullscreen), causing _visible to be stale.
-                MonitorGetWorkArea(this._monitorNumber, &Left, &Top, &Right, &Bottom)
-                this.MyGui.Show("X" Right - this.boxWidth "Y" Top "W" this.boxWidth "H" this.boxHeight " NoActivate" )
-                this._visible:=true
+                ; Show if not currently tracked as visible or if hidden externally (OS check)
+                if !this._visible || !DllCall("IsWindowVisible", "Ptr", this.MyGui.Hwnd) {
+                    MonitorGetWorkArea(this._monitorNumber, &Left, &Top, &Right, &Bottom)
+                    this.MyGui.Show("X" Right - this.boxWidth "Y" Top "W" this.boxWidth "H" this.boxHeight " NoActivate" )
+                    this._visible:=true
+                }
             }
             else if this._visible {
                 try {
-                    this.MyGui.Hide
+                    this.MyGui.Hide()
                 }
                 this._visible:=false
             }
