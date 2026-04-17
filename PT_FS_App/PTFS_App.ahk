@@ -133,32 +133,23 @@ TogglePTFullScreen(PT_MAIN_HWND) {
 
 	SetTimer MDITimer, 0
 
-	if Settings.KEEP_MAIN_WINDOW {
-		MDIToggleWindow(PT_MAIN_HWND, Settings, mix_hwnd)
-		MDIToggleWindow(PT_MAIN_HWND, Settings,edit_hwnd)
+    ; Determine current state to decide what to toggle to.
+    ; If KEEP_MAIN_WINDOW is true, we look at edit window. Otherwise, we look at main window.
+    isCurrentlyStyled := Settings.KEEP_MAIN_WINDOW ? IsWindowStyled(edit_hwnd, Settings.THIN_BORDER) : IsWindowStyled(PT_MAIN_HWND)
+    targetState := !isCurrentlyStyled
 
-		if IsWindowStyled(edit_hwnd, Settings.KEEP_MAIN_WINDOW && Settings.THIN_BORDER){
-			SetTimer MDITimer, 250
-		}
-		else{
-			DisplayProjectInTitle(PT_MAIN_HWND,"")
-			SetTimer MDITimer, 0
-		}
+    SetPTFullscreen(PT_MAIN_HWND, Settings, targetState)
 
-		return
-	}
-
-	ToggleMainWindow(PT_MAIN_HWND, Settings)
-	MDIToggleWindow(PT_MAIN_HWND, Settings, mix_hwnd)
-	MDIToggleWindow(PT_MAIN_HWND, Settings, edit_hwnd)
-
-	if IsWindowStyled(PT_MAIN_HWND) {
-		SetTimer MDITimer, 250
-	}
-	else {
-		prjw.Visible:=false
-		SetTimer MDITimer, 0
-	}
+    if targetState {
+        SetTimer MDITimer, 250
+    }
+    else {
+        if Settings.KEEP_MAIN_WINDOW
+            DisplayProjectInTitle(PT_MAIN_HWND,"")
+        else
+            prjw.Visible:=false
+        SetTimer MDITimer, 0
+    }
 }
 
 ; Show or hide Pro Tools menu when main window is borderless.
@@ -225,7 +216,9 @@ MDITimer() {
 		return
 	}
 
-	MDISetState(PT_MAIN_HWND, Settings, true)
+	; Synchronize MDI windows to desired state
+    desiredMDIState := Settings.KEEP_MAIN_WINDOW ? true : IsWindowStyled(PT_MAIN_HWND)
+	MDISetState(PT_MAIN_HWND, Settings, desiredMDIState)
 
 	if !Settings.SHOW_PROJECT_NAME {
 		if prjw.Visible

@@ -45,16 +45,10 @@ ToggleMainWindow(PT_MAIN_HWND, Settings) {
 
 ; toggle main window borders
 SetPTFullscreen(PT_MAIN_HWND, Settings, fullscreen) {
+	if !Settings.KEEP_MAIN_WINDOW
+		MainState(PT_MAIN_HWND, Settings, fullscreen)
 
-	MDIGetHandles(PT_MAIN_HWND, &edit_hwnd, &mix_hwnd)
-
-	style:=IsWindowStyled(PT_MAIN_HWND)
-	edit_styled:=IsWindowStyled(edit_hwnd, Settings.KEEP_MAIN_WINDOW && Settings.THIN_BORDER)
-	mix_styled:=IsWindowStyled(mix_hwnd, Settings.KEEP_MAIN_WINDOW && Settings.THIN_BORDER)
-
-	if (style == !fullscreen) || ((edit_styled || mix_styled) == !fullscreen)
-		TogglePTFullScreen(PT_MAIN_HWND)
-
+	MDISetState(PT_MAIN_HWND, Settings, fullscreen)
 }
 
 WindowSizeChanged(hWnd) {
