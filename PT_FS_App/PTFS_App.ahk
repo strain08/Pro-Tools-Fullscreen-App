@@ -145,7 +145,7 @@ TogglePTFullScreen(PT_MAIN_HWND) {
     }
     else {
         if Settings.KEEP_MAIN_WINDOW
-            DisplayProjectInTitle(PT_MAIN_HWND,"")
+            DisplayProjectInTitle(PT_MAIN_HWND, "")
         else
             prjw.Visible:=false
         SetTimer MDITimer, 0
@@ -228,6 +228,7 @@ MDITimer() {
 
 	; update project name text
 	projectName:= GetProjectName(PT_MAIN_HWND)
+	prjw.SetOwner(PT_MAIN_HWND)
 	prjw.ProjectName:= projectName
 
 	if Settings.KEEP_MAIN_WINDOW	{
@@ -251,7 +252,7 @@ MDITimer() {
 OnExitHandler(*) {
 	if PT_MAIN_HWND:=WinExist(PT_WINDOW){
 		prjw.Visible:=false
-		DisplayProjectInTitle(PT_MAIN_HWND,'')
+		DisplayProjectInTitle(PT_MAIN_HWND, '')
 		MainState(PT_MAIN_HWND, Settings, false)
 		MDISetState(PT_MAIN_HWND, Settings, false)
 		if DllCall("GetMenu", "Ptr", PT_MAIN_HWND) == 0 && MENU_PTR != 0 {

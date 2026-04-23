@@ -8,21 +8,46 @@ class SessionNameWindow{
     boxHeight:=20 ; menu height
     _visible:=false
     _owner:=0
+    _monitorNumber:=0
+    _projectName:=""
+    TextID:=0
+
     __New(MonitorNumber) {
         this._monitorNumber:=MonitorNumber
+        this.CreateGui()
+    }
+
+    CreateGui() {
+        if this.MyGui {
+            try this.MyGui.Destroy()
+        }
         this.MyGui := Gui()
-        ;this.MyGui.BackColor:="333333"
-        ;this.MyGui.SetFont("s10 c38D177 w100")
         this.MyGui.BackColor:= "White"
         WinSetTransColor("White", this.MyGui)
         this.MyGui.SetFont("s9 cBlack w700", "Segoe UI")
-        this.TextID:= this.MyGui.AddText("x0 y2 w1200 h" this.boxHeight " Center")
-        this.MyGui.Opt("-AlwaysOnTop -Caption -SysMenu +Owner")
+        this.TextID:= this.MyGui.AddText("x0 y2 w1200 h" this.boxHeight " Center", this._projectName)
+        
+        ; Initial options. If we already had an owner, re-apply it immediately
+        ; to avoid taskbar flicker or ownership issues.
+        opt := "-AlwaysOnTop -Caption -SysMenu +Owner"
+        if this._owner
+            opt .= this._owner
+        
+        this.MyGui.Opt(opt)
+        this._visible := false
     }
 
     SetOwner(HWND){
-        if (this._owner == HWND || HWND == 0)
+        if (HWND == 0)
             return
+
+        ; Ensure GUI window actually exists
+        if !WinExist(this.MyGui)
+            this.CreateGui()
+
+        if (this._owner == HWND)
+            return
+            
         try {
             this.MyGui.Opt("+Owner" HWND)
             this._owner:=HWND
@@ -30,13 +55,25 @@ class SessionNameWindow{
     }
 
     ProjectName {
-        set => ControlSetText(Value, this.TextID)
+        set {
+            this._projectName := Value
+            try {
+                if !WinExist(this.MyGui)
+                    this.CreateGui()
+                ControlSetText(Value, this.TextID)
+            }
+        }
+        get => this._projectName
     }
 
     Visible{
         get => this._visible
         set{
             if Value{
+                ; Ensure GUI exists
+                if !WinExist(this.MyGui)
+                    this.CreateGui()
+
                 ; Show if not currently tracked as visible or if hidden externally (OS check)
                 if !this._visible || !DllCall("IsWindowVisible", "Ptr", this.MyGui.Hwnd) {
                     MonitorGetWorkArea(this._monitorNumber, &Left, &Top, &Right, &Bottom)
